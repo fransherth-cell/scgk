@@ -234,7 +234,7 @@ function csvCell(value) {
 }
 
 async function init() {
-  const response = await fetch("data/gaokao_data.json");
+  const response = await fetch("data.json");
   DATA = await response.json();
   $("meta").textContent = `${DATA.meta.schoolCount} 所学校，${DATA.meta.admissionCount} 条线位`;
   $("runBtn").addEventListener("click", recommend);
