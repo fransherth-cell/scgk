@@ -1,0 +1,175 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>鍥涘窛楂樿€冨織鎰垮垵绛涜〃</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #d8dee8;
+      --panel: #ffffff;
+      --bg: #f6f7f9;
+      --brand: #12355b;
+      --accent: #0f766e;
+      --blue: #2563eb;
+      --warn: #92400e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+    }
+    header {
+      background: var(--brand);
+      color: white;
+      padding: 18px 24px 16px;
+    }
+    header h1 { margin: 0; font-size: 22px; letter-spacing: 0; }
+    header p { margin: 7px 0 0; color: #dbeafe; font-size: 13px; }
+    main { max-width: 1440px; margin: 0 auto; padding: 18px 24px 28px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    label { display: block; color: #4b5563; font-size: 13px; }
+    input, select {
+      width: 100%;
+      margin-top: 5px;
+      padding: 9px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      font: inherit;
+    }
+    button, .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 9px 14px;
+      border: 0;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .blue { background: var(--blue); }
+    .dark { background: #475569; }
+    .actions { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+    .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+    .pill { background: #eef2f7; border: 1px solid var(--line); padding: 6px 9px; font-size: 12px; color: #475569; }
+    .notice { color: var(--warn); font-size: 13px; line-height: 1.5; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .card { background: white; border: 1px solid var(--line); padding: 12px; }
+    .card strong { display: block; margin-bottom: 5px; }
+    .card span { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; font-size: 12px; }
+    th, td { border: 1px solid #e5e7eb; padding: 6px 7px; vertical-align: top; line-height: 1.35; }
+    th { background: #eef2f7; text-align: left; }
+    th:nth-child(1), td:nth-child(1) { width: 42px; text-align: center; }
+    th:nth-child(2), td:nth-child(2) { width: 116px; }
+    th:nth-child(3), td:nth-child(3) { width: 76px; }
+    th:nth-child(4), td:nth-child(4) { width: 144px; }
+    th:nth-child(5), td:nth-child(5) { width: 58px; text-align: center; }
+    th:nth-child(6), td:nth-child(6) { width: 58px; text-align: right; }
+    th:nth-child(7), td:nth-child(7) { width: 76px; text-align: right; }
+    th:nth-child(8), td:nth-child(8) { width: 70px; text-align: right; }
+    .clip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .empty { padding: 24px; text-align: center; color: var(--muted); background: white; border: 1px solid var(--line); }
+    @media (max-width: 1000px) {
+      .grid, .cards { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      main { padding: 12px; }
+      .grid, .cards { grid-template-columns: 1fr; }
+      table { min-width: 920px; }
+      .table-wrap { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>鍥涘窛楂樿€冨織鎰垮垵绛涜〃</h1>
+    <p>杈撳叆绉戠被銆佸垎鏁版垨浣嶆锛屽厛绛涘啿绋充繚銆傚畬鏁磋〃鏍?9.9锛屾繁搴﹁祫鏂欐暣鐞?99銆?/p>
+  </header>
+
+  <main>
+    <section class="cards">
+      <div class="card"><strong>鍏嶈垂鏌ヨ</strong><span>椤甸潰鐩存帴灞曠ず鍏ㄩ儴鍊欓€夛紝閫傚悎蹇€熷垽鏂ぇ鑷磋寖鍥淬€?/span></div>
+      <div class="card"><strong>9.9 瀵煎嚭琛ㄦ牸</strong><span>涓嬭浇瀹屾暣 CSV锛屾柟渚夸繚瀛樸€佽浆鍙戙€佷簩娆′汉宸ュ鏍搞€?/span></div>
+      <div class="card"><strong>99 娣卞害鏁寸悊</strong><span>澶嶆牳闄㈡牎浠ｇ爜銆佷笓涓氱粍銆佷笓涓氫唬鐮併€佽鍒掓暟銆佹牎鍖哄璐广€佸氨涓氬彛纰戙€?/span></div>
+    </section>
+
+    <section class="panel">
+      <div class="grid">
+        <label>瀹㈡埛濮撳悕<input id="customerName" placeholder="鍙€?></label>
+        <label>鑱旂郴鏂瑰紡<input id="customerPhone" placeholder="鍙€?></label>
+        <label>绉戠被<select id="track"><option>鐗╃悊绫?/option><option>鍘嗗彶绫?/option></select></label>
+        <label>鍒嗘暟<input id="score" inputmode="numeric" placeholder="鍙彧濉綅娆?></label>
+        <label>浣嶆<input id="rank" inputmode="numeric" placeholder="寮虹儓寤鸿濉啓"></label>
+        <label>鍋忓ソ鍩庡競<input id="preferredCities" placeholder="鎴愰兘,閲嶅簡"></label>
+        <label>鍥為伩鍩庡競<input id="avoidedCities"></label>
+        <label>鍋忓ソ涓撲笟<input id="preferredMajors" placeholder="璁＄畻鏈?鐢靛瓙"></label>
+        <label>鍥為伩涓撲笟<input id="avoidedMajors"></label>
+        <label>涓鍚堜綔<select id="acceptJoint"><option value="0">涓嶆帴鍙?/option><option value="1">鍙帴鍙?/option></select></label>
+        <div class="actions">
+          <button id="runBtn">鐢熸垚鎺ㄨ崘</button>
+          <button id="downloadBtn" class="blue" disabled>9.9 涓嬭浇瀹屾暣 CSV</button>
+          <a class="button dark" id="deepBtn" href="deep-request.html">99 娣卞害鏁寸悊</a>
+        </div>
+      </div>
+      <div class="bar">
+        <span class="pill" id="meta">鏁版嵁鍔犺浇涓?/span>
+        <span class="pill" id="orderId">璁㈠崟鍙峰緟鐢熸垚</span>
+        <span class="pill">寤鸿瀹㈡埛鎻愪緵浣嶆锛屽垎鏁板彧浣滆緟鍔?/span>
+      </div>
+      <p class="notice" id="notice">鏈伐鍏风敤浜庡織鎰垮垵绛涳紝涓嶇瓑浜庡綍鍙栨壙璇猴紝涔熶笉鑳界洿鎺ヤ綔涓烘渶缁堝～鎶ヨ〃銆傛寮忓～鎶ュ墠蹇呴』澶嶆牳闄㈡牎浠ｇ爜銆佷笓涓氱粍浠ｇ爜銆佷笓涓氫唬鐮併€佹嫑鐢熻鍒掋€侀€夌銆佷綋妫€銆佽绉嶃€佹牎鍖恒€佸璐瑰拰璋冨墏椋庨櫓銆?/p>
+      <p class="notice">涓婄嚎鍒濇湡寤鸿锛氶〉闈㈠厤璐规煡璇㈠叏閮ㄥ€欓€夛紱9.9 瀵煎嚭瀹屾暣琛ㄦ牸銆?9 娣卞害鏁寸悊閮借蛋铏庣毊妞掍粯娆俱€侴itHub Pages 闈欐€侀〉鏈韩涓嶅仛鏀粯寮烘牎楠岋紝浠樻鍚庤瀹㈡埛淇濈暀鎴浘/璁㈠崟鍙枫€?/p>
+      <div class="bar">
+        <a class="button blue" id="pay9Btn" href="#" target="_blank" rel="noopener">铏庣毊妞?9.9 瀵煎嚭琛ㄦ牸</a>
+        <a class="button dark" id="pay99Btn" href="#" target="_blank" rel="noopener">铏庣毊妞?99 娣卞害鏁寸悊</a>
+        <button id="copyConsultBtn" type="button">澶嶅埗鍜ㄨ妯℃澘</button>
+      </div>
+    </section>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>灞傜骇</th><th>瀛︽牎</th><th>鍩庡競</th><th>涓撲笟/璇存槑</th><th>缁?/th><th>鏈€浣庡垎</th><th>鏈€浣庝綅娆?/th><th>浣嶆宸?/th><th>鐞嗙敱</th></tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty">杈撳叆淇℃伅鍚庣敓鎴愮粨鏋溿€?/div>
+
+    <section class="panel" id="deep" style="margin-top:12px">
+      <strong>99 娣卞害璧勬枡鏁寸悊</strong>
+      <p class="notice">閫傚悎宸茬粡鎷垮埌鍒濈瓫琛紝浣嗚繕鎯虫瘮杈冨鏍°€佷笓涓氥€佷唬鐮併€佹嫑鐢熻鍒掋€佸鑸嶃€佹牎鍖恒€佸璐广€佷腑澶栧悎浣溿€佸氨涓氬拰鑰冪爺鐨勫鎴枫€?/p>
+      <p>浠樻鍚庤瀹㈡埛濉啓锛氱绫汇€佸垎鏁般€佷綅娆°€佸€欓€夊鏍°€佹兂浜嗚В鐨勯棶棰樸€佸搴绠椼€佹槸鍚︽帴鍙椾腑澶栧悎浣溿€備綘鎶婇棶棰樺彂缁欐垜锛屾垜浼氭寜瀹樻柟璧勬枡浼樺厛銆佸叕寮€鍙ｇ杈呭姪鐨勬柟寮忔暣鐞嗘垚鍙氦浠樻枃妗ｅ拰瀹㈡埛璇濇湳銆?/p>
+      <p><a class="button dark" href="deep-request.html">鎵撳紑 99 闇€姹傚崟</a></p>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+
