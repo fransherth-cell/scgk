@@ -207,6 +207,12 @@
       flex-wrap: wrap;
       margin-top: 8px;
     }
+    .mobile-save-tip {
+      margin-top: 6px;
+      color: #9a3412;
+      font-size: 12px;
+      line-height: 1.5;
+    }
     .wechat-actions button,
     .wechat-actions a {
       min-height: 34px;
@@ -322,9 +328,10 @@
         <div>
           微信联系方式：<span class="wechat-id" id="wechatText">franzxeth</span><br>添加后请发送成绩信息和你的填报需求。
           <div class="wechat-actions">
-            <a class="button" href="wechat-qr.png" download="wechat-qr.png">保存二维码图片</a>
+            <a class="button" href="wechat-qr.png" download="wechat-qr.png" target="_blank" rel="noopener">打开/保存二维码</a>
             <button id="copyWechatBtn" type="button">复制微信联系方式</button>
           </div>
+          <div class="mobile-save-tip">手机用户可点开二维码后长按保存，再到微信扫一扫中选择相册识别。</div>
         </div>
       </div>
     </div>
