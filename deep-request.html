@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>99 深度资料整理需求单</title>
+  <title>候选学校了解需求单</title>
   <style>
     body { margin: 0; background: #f6f7f9; color: #1f2937; font-family: Arial, "Microsoft YaHei", sans-serif; }
     header { background: #12355b; color: white; padding: 18px 24px; }
@@ -21,14 +21,13 @@
   </style>
 </head>
 <body>
-  <header><h1>99 深度资料整理需求单</h1></header>
+  <header><h1>候选学校了解需求单</h1></header>
   <main>
     <section>
-      <p class="notice">通过虎皮椒付款 99 后填写本页信息，把生成的需求文本和虎皮椒订单号/付款截图发给咨询老师。深度整理会优先核对官方资料，包括院校代码、专业组代码、专业代码、招生计划、学费、校区、限制条件，再补充公开口碑。</p>
+      <p class="notice">填写本页信息后，把生成的需求文本发给咨询老师。后续会优先核对官方资料，包括院校代码、专业组代码、专业代码、招生计划、学费、校区、限制条件，再补充公开口碑。</p>
       <div class="grid">
         <label>客户姓名<input id="name"></label>
         <label>联系方式<input id="phone"></label>
-        <label>虎皮椒订单号<input id="payOrder"></label>
         <label>科类<select id="track"><option>物理类</option><option>历史类</option></select></label>
         <label>分数<input id="score"></label>
         <label>位次<input id="rank"></label>
@@ -48,10 +47,9 @@
     const $ = (id) => document.getElementById(id);
     function buildText() {
       return [
-        "【99深度资料整理需求】",
+        "【候选学校了解需求】",
         `客户姓名：${$("name").value}`,
         `联系方式：${$("phone").value}`,
-        `虎皮椒订单号：${$("payOrder").value}`,
         `科类：${$("track").value}`,
         `分数：${$("score").value}`,
         `位次：${$("rank").value}`,

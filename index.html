@@ -22,15 +22,12 @@
       margin: 0;
       background: var(--bg);
       color: var(--ink);
-      font-family: Arial, "Microsoft YaHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
-    header {
-      background: var(--brand);
-      color: white;
-      padding: 18px 24px 16px;
-    }
-    header h1 { margin: 0; font-size: 22px; letter-spacing: 0; }
-    header p { margin: 7px 0 0; color: #dbeafe; font-size: 13px; }
     main { max-width: 1440px; margin: 0 auto; padding: 18px 24px 28px; }
     .panel {
       background: var(--panel);
@@ -42,6 +39,32 @@
       display: grid;
       grid-template-columns: repeat(5, minmax(150px, 1fr));
       gap: 10px;
+    }
+    .query-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 14px;
+      align-items: start;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .side-actions {
+      border-left: 1px solid var(--line);
+      padding-left: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .side-actions .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+      margin: 0 0 2px;
     }
     label { display: block; color: #4b5563; font-size: 13px; }
     input, select {
@@ -61,17 +84,67 @@
       border: 0;
       background: var(--accent);
       color: white;
-      font-weight: 700;
+      font-weight: 650;
       text-decoration: none;
       cursor: pointer;
       font-size: 14px;
+      letter-spacing: 0;
     }
     .blue { background: var(--blue); }
     .dark { background: #475569; }
-    .actions { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+    .primary-action {
+      min-height: 54px;
+      font-size: 16px;
+      width: 100%;
+      box-shadow: 0 8px 18px rgba(15, 118, 110, .18);
+    }
+    .secondary-action {
+      min-height: 42px;
+      width: 100%;
+      font-size: 14px;
+    }
+    .actions { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
     .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
     .pill { background: #eef2f7; border: 1px solid var(--line); padding: 6px 9px; font-size: 12px; color: #475569; }
-    .notice { color: var(--warn); font-size: 13px; line-height: 1.5; }
+    .notice { color: var(--warn); font-size: 13px; line-height: 1.65; }
+    .contact-box {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 180px;
+      gap: 14px;
+      align-items: center;
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px dashed #94a3b8;
+      background: #f8fafc;
+    }
+    .qr-box {
+      min-height: 150px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 10px;
+    }
+    .qr-box img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      display: block;
+    }
+    .step-list {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .art-field { display: none; }
+    body.art-mode .art-field { display: block; }
+    body.art-mode .normal-only { display: none; }
     .cards {
       display: grid;
       grid-template-columns: repeat(3, minmax(180px, 1fr));
@@ -82,8 +155,8 @@
     .card strong { display: block; margin-bottom: 5px; }
     .card span { color: var(--muted); font-size: 13px; line-height: 1.45; }
     table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; font-size: 12px; }
-    th, td { border: 1px solid #e5e7eb; padding: 6px 7px; vertical-align: top; line-height: 1.35; }
-    th { background: #eef2f7; text-align: left; }
+    th, td { border: 1px solid #e5e7eb; padding: 6px 7px; vertical-align: top; line-height: 1.45; }
+    th { background: #eef2f7; text-align: left; font-weight: 650; }
     th:nth-child(1), td:nth-child(1) { width: 42px; text-align: center; }
     th:nth-child(2), td:nth-child(2) { width: 116px; }
     th:nth-child(3), td:nth-child(3) { width: 76px; }
@@ -94,60 +167,140 @@
     th:nth-child(8), td:nth-child(8) { width: 70px; text-align: right; }
     .clip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .empty { padding: 24px; text-align: center; color: var(--muted); background: white; border: 1px solid var(--line); }
+    .contact-line {
+      margin: 12px 0 0;
+      padding: 14px 16px;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #7c2d12;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .contact-line strong { font-weight: 700; }
+    .contact-line .wechat-id {
+      display: inline-block;
+      margin: 0 4px;
+      padding: 2px 8px;
+      background: white;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      font-weight: 700;
+    }
+    .wechat-contact {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .wechat-contact img {
+      width: 112px;
+      height: 112px;
+      object-fit: contain;
+      background: white;
+      border: 1px solid #fed7aa;
+      padding: 6px;
+    }
+    .wechat-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .wechat-actions button,
+    .wechat-actions a {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 13px;
+      background: #9a3412;
+    }
+    .pay-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(15, 23, 42, .45);
+      z-index: 20;
+    }
+    .pay-modal.show { display: flex; }
+    .pay-box {
+      width: min(420px, 100%);
+      background: white;
+      border: 1px solid var(--line);
+      padding: 18px;
+      box-shadow: 0 18px 42px rgba(15, 23, 42, .22);
+    }
+    .pay-box h2 { margin: 0 0 8px; font-size: 18px; }
+    .pay-box p { margin: 8px 0; color: var(--muted); line-height: 1.55; }
+    .pay-qr {
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      margin: 12px 0;
+      padding: 12px;
+      text-align: center;
+      word-break: break-all;
+    }
+    .pay-qr img { width: 220px; height: 220px; object-fit: contain; }
     @media (max-width: 1000px) {
       .grid, .cards { grid-template-columns: 1fr 1fr; }
+      .query-layout { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .side-actions { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 12px; }
     }
     @media (max-width: 640px) {
       main { padding: 12px; }
-      .grid, .cards { grid-template-columns: 1fr; }
+      .grid, .cards, .form-grid { grid-template-columns: 1fr; }
+      .contact-box { grid-template-columns: 1fr; }
       table { min-width: 920px; }
       .table-wrap { overflow-x: auto; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>四川高考志愿初筛表</h1>
-    <p>输入科类、分数或位次，先筛冲稳保。完整表格 9.9，深度资料整理 99。</p>
-  </header>
-
   <main>
     <section class="cards">
-      <div class="card"><strong>免费查询</strong><span>页面直接展示全部候选，适合快速判断大致范围。</span></div>
-      <div class="card"><strong>9.9 导出表格</strong><span>下载完整 CSV，方便保存、转发、二次人工复核。</span></div>
-      <div class="card"><strong>99 深度整理</strong><span>复核院校代码、专业组、专业代码、计划数、校区学费、就业口碑。</span></div>
+      <div class="card"><strong>只做四川</strong><span>不撒全国网，专注川内热门校。50+所高校2025年录取位次精准整理。</span></div>
+      <div class="card"><strong>5秒出结果</strong><span>不用逐个搜学校、翻官网。输入分数+选科，冲稳保清单即时呈现。</span></div>
+      <div class="card"><strong>比百度全</strong><span>每条数据从官网逐条核过。包含专业组、批次、位次差。</span></div>
     </section>
 
     <section class="panel">
-      <div class="grid">
-        <label>客户姓名<input id="customerName" placeholder="可选"></label>
-        <label>联系方式<input id="customerPhone" placeholder="可选"></label>
-        <label>科类<select id="track"><option>物理类</option><option>历史类</option></select></label>
-        <label>分数<input id="score" inputmode="numeric" placeholder="可只填位次"></label>
-        <label>位次<input id="rank" inputmode="numeric" placeholder="强烈建议填写"></label>
-        <label>偏好城市<input id="preferredCities" placeholder="成都,重庆"></label>
-        <label>回避城市<input id="avoidedCities"></label>
-        <label>偏好专业<input id="preferredMajors" placeholder="计算机,电子"></label>
-        <label>回避专业<input id="avoidedMajors"></label>
-        <label>中外合作<select id="acceptJoint"><option value="0">不接受</option><option value="1">可接受</option></select></label>
-        <div class="actions">
-          <button id="runBtn">生成推荐</button>
-          <button id="downloadBtn" class="blue" disabled>9.9 下载完整 CSV</button>
-          <a class="button dark" id="deepBtn" href="deep-request.html">99 深度整理</a>
+      <div class="query-layout">
+        <div class="form-grid">
+          <label>查询类型<select id="queryType"><option value="normal">普通类</option><option value="art">艺体类</option></select></label>
+          <label class="normal-only">科类<select id="track"><option>物理类</option><option>历史类</option></select></label>
+          <label>分数<input id="score" inputmode="numeric" placeholder="请输入分数"></label>
+          <label class="normal-only">位次<input id="rank" inputmode="numeric" placeholder="请输入位次"></label>
+          <label class="normal-only">中外合作<select id="acceptJoint"><option value="0">不接受</option><option value="1">可接受</option></select></label>
+          <label class="art-field">艺体类别<select id="artCategory"></select></label>
+          <label class="art-field">专业分<input id="majorScore" inputmode="decimal" placeholder="请输入专业分"></label>
+          <label class="art-field">综合分/位次<input id="artRank" placeholder="可选"></label>
+          <label>偏好城市<input id="preferredCities" placeholder="成都,重庆"></label>
+          <label>回避城市<input id="avoidedCities"></label>
+          <label>偏好专业<input id="preferredMajors" placeholder="计算机,电子"></label>
+          <label>回避专业<input id="avoidedMajors"></label>
         </div>
+        <aside class="side-actions">
+          <p class="hint">先生成推荐，结果可直接查看和截图保存。</p>
+          <button id="runBtn" class="primary-action">生成推荐</button>
+          <button id="exportBtn" class="blue secondary-action" type="button" disabled>导出完整表格 ¥9.9</button>
+          <button id="copyInfoBtn" class="secondary-action" type="button">复制我的成绩信息</button>
+        </aside>
       </div>
       <div class="bar">
         <span class="pill" id="meta">数据加载中</span>
-        <span class="pill" id="orderId">订单号待生成</span>
-        <span class="pill">建议客户提供位次，分数只作辅助</span>
+        <span class="pill" id="orderId">查询号待生成</span>
+        <span class="pill">普通类建议提供位次；艺体类需提供文化分和专业分</span>
       </div>
       <p class="notice" id="notice">本工具用于志愿初筛，不等于录取承诺，也不能直接作为最终填报表。正式填报前必须复核院校代码、专业组代码、专业代码、招生计划、选科、体检、语种、校区、学费和调剂风险。</p>
-      <p class="notice">上线初期建议：页面免费查询全部候选；9.9 导出完整表格、99 深度整理都走虎皮椒付款。GitHub Pages 静态页本身不做支付强校验，付款后请客户保留截图/订单号。</p>
-      <div class="bar">
-        <a class="button blue" id="pay9Btn" href="#" target="_blank" rel="noopener">虎皮椒 9.9 导出表格</a>
-        <a class="button dark" id="pay99Btn" href="#" target="_blank" rel="noopener">虎皮椒 99 深度整理</a>
-        <button id="copyConsultBtn" type="button">复制咨询模板</button>
-      </div>
+      <p class="notice">本页用于初步筛选学校范围，结果可截图保存和沟通，不可直接作为最终填报表。</p>
+      <p class="notice">表格中的“专业组线”指该院校专业组往年最低投档分/位次，不代表具体专业；正式填报时仍需查看组内专业、专业代码和当年招生计划。</p>
     </section>
 
     <div class="table-wrap">
@@ -159,17 +312,38 @@
       </table>
     </div>
     <div class="empty" id="empty">输入信息后生成结果。</div>
-
-    <section class="panel" id="deep" style="margin-top:12px">
-      <strong>99 深度资料整理</strong>
-      <p class="notice">适合已经拿到初筛表，但还想比较学校、专业、代码、招生计划、宿舍、校区、学费、中外合作、就业和考研的客户。</p>
-      <p>付款后让客户填写：科类、分数、位次、候选学校、想了解的问题、家庭预算、是否接受中外合作。你把问题发给我，我会按官方资料优先、公开口碑辅助的方式整理成可交付文档和客户话术。</p>
-      <p><a class="button dark" href="deep-request.html">打开 99 需求单</a></p>
-    </section>
+    <div class="contact-line" id="contactLine">
+      <strong>想要更稳妥的填报方案？</strong>
+      当前结果为系统初筛，适合快速判断冲稳保范围。正式填报前，还需要结合院校代码、专业组、招生计划、校区学费、专业限制和调剂风险进一步核对。
+      如需进一步判断，我们可以根据你的分数、位次、科类、城市偏好和专业方向，整理一份更适合你的专属志愿方案。
+      请联系我们，并发送科类、分数、位次、想去的城市和专业方向。
+      <div class="wechat-contact">
+        <img src="wechat-qr.png" alt="微信二维码">
+        <div>
+          微信联系方式：<span class="wechat-id" id="wechatText">franzxeth</span><br>添加后请发送成绩信息和你的填报需求。
+          <div class="wechat-actions">
+            <a class="button" href="wechat-qr.png" download="wechat-qr.png">保存二维码图片</a>
+            <button id="copyWechatBtn" type="button">复制微信联系方式</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <script src="config.js?v=20260624b"></script>
-  <script src="script.js?v=20260624b"></script>
+  <div class="pay-modal" id="payModal" aria-hidden="true">
+    <div class="pay-box">
+      <h2>导出完整表格</h2>
+      <p>扫码完成后点击下方按钮下载 CSV。自动校验支付状态需要 Worker 增加订单查询接口，当前先保留人工确认入口。</p>
+      <div class="pay-qr" id="payQr">正在创建订单...</div>
+      <div class="bar">
+        <button id="paidDownloadBtn" class="blue secondary-action" type="button">我已付款，下载CSV</button>
+        <button id="closePayBtn" class="dark secondary-action" type="button">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js?v=20260624c"></script>
+  <script src="script.js?v=20260624c"></script>
 </body>
 </html>
 
