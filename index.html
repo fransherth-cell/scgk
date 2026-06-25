@@ -193,6 +193,27 @@
       margin-top: 10px;
       flex-wrap: wrap;
     }
+    .contact-prep {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: white;
+      border: 1px solid #fed7aa;
+    }
+    .contact-prep button {
+      width: 100%;
+      border: 0;
+      background: #0f766e;
+      color: white;
+      padding: 11px 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .contact-prep span {
+      display: block;
+      margin-top: 7px;
+      color: #9a3412;
+      font-size: 13px;
+    }
     .wechat-contact img {
       width: 112px;
       height: 112px;
@@ -232,11 +253,12 @@
     }
     .pay-modal.show { display: flex; }
     .pay-box {
-      width: min(420px, 100%);
+      width: min(360px, 100%);
       background: white;
       border: 1px solid var(--line);
       padding: 18px;
       box-shadow: 0 18px 42px rgba(15, 23, 42, .22);
+      position: relative;
     }
     .pay-box h2 { margin: 0 0 8px; font-size: 18px; }
     .pay-box p { margin: 8px 0; color: var(--muted); line-height: 1.55; }
@@ -253,6 +275,56 @@
       word-break: break-all;
     }
     .pay-qr img { width: 220px; height: 220px; object-fit: contain; }
+    .share-box {
+      text-align: center;
+      padding: 22px 18px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .share-link {
+      margin: 14px auto 10px;
+      padding: 12px;
+      border: 1px dashed var(--line);
+      background: #f8fafc;
+      color: var(--ink);
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+    .share-box button {
+      width: 100%;
+      margin-top: 10px;
+    }
+    .share-divider {
+      height: 1px;
+      background: var(--line);
+      margin: 18px 0 8px;
+    }
+    .share-note {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid #99f6e4;
+      background: #f0fdfa;
+      color: #134e4a;
+      text-align: left;
+      line-height: 1.6;
+      font-size: 13px;
+    }
+    .share-note strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
     @media (max-width: 1000px) {
       .grid, .cards { grid-template-columns: 1fr 1fr; }
       .query-layout { grid-template-columns: 1fr; }
@@ -293,10 +365,9 @@
           <label>回避专业<input id="avoidedMajors"></label>
         </div>
         <aside class="side-actions">
-          <p class="hint">先生成推荐，结果可直接查看和截图保存。</p>
-          <button id="runBtn" class="primary-action">生成推荐</button>
-          <button id="exportBtn" class="blue secondary-action" type="button" disabled>导出完整表格 ¥9.9</button>
-          <button id="copyInfoBtn" class="secondary-action" type="button">复制我的成绩信息</button>
+          <p class="hint">输入成绩和需求后，先生成一份学校范围初筛表，结果可直接查看、保存，也可以发给朋友一起参考。</p>
+          <button id="runBtn" class="primary-action">生成初筛表</button>
+          <button id="exportBtn" class="blue secondary-action" type="button" disabled>保存/分享初筛表</button>
         </aside>
       </div>
       <div class="bar">
@@ -323,10 +394,14 @@
       当前结果为系统初筛，适合快速判断冲稳保范围。正式填报前，还需要结合院校代码、专业组、招生计划、校区学费、专业限制和调剂风险进一步核对。
       如需进一步判断，我们可以根据你的分数、位次、科类、城市偏好和专业方向，整理一份更适合你的专属志愿方案。
       请联系我们，并发送科类、分数、位次、想去的城市和专业方向。
+      <div class="contact-prep">
+        <button id="copyInfoBtn" type="button">复制我的志愿需求</button>
+        <span>添加微信后，请直接发送您的志愿需求，方便快速复核。</span>
+      </div>
       <div class="wechat-contact">
         <img src="wechat-qr.png" alt="微信二维码">
         <div>
-          微信联系方式：<span class="wechat-id" id="wechatText">franzxeth</span><br>添加后请发送成绩信息和你的填报需求。
+          微信联系方式：<span class="wechat-id" id="wechatText">franzxeth</span><br>添加后请发送您的志愿需求。
           <div class="wechat-actions">
             <a class="button" href="wechat-qr.png" download="wechat-qr.png" target="_blank" rel="noopener">打开/保存二维码</a>
             <button id="copyWechatBtn" type="button">复制微信联系方式</button>
@@ -337,20 +412,24 @@
     </div>
   </main>
 
-  <div class="pay-modal" id="payModal" aria-hidden="true">
-    <div class="pay-box">
-      <h2>导出完整表格</h2>
-      <p>扫码完成后点击下方按钮验证订单状态，支付成功后自动下载 Excel 表格。</p>
-      <div class="pay-qr" id="payQr">正在创建订单...</div>
-      <div class="bar">
-        <button id="paidDownloadBtn" class="blue secondary-action" type="button">我已付款，验证并下载</button>
-        <button id="closePayBtn" class="dark secondary-action" type="button">关闭</button>
+  <div class="pay-modal" id="shareModal" aria-hidden="true">
+    <div class="pay-box share-box">
+      <button id="closeShareBtn" class="modal-close" type="button" aria-label="关闭">×</button>
+      <h2>保存这份初筛表</h2>
+      <p>你可以先把结果保存下来，后面和家人讨论时更方便。</p>
+      <button id="downloadExcelBtn" class="primary-action" type="button">下载 Excel 表格</button>
+      <div class="share-note">
+        <strong>也可以推荐给朋友测一遍</strong>
+        如果身边也有人在填四川志愿，把这个链接发给他，输入分数和科类就能先看冲稳保范围。
       </div>
+      <div class="share-link">scgk114.com</div>
+      <button id="copyLinkBtn" class="blue secondary-action" type="button">复制网站链接</button>
     </div>
   </div>
 
-  <script src="config.js?v=20260625b"></script>
-  <script src="script.js?v=20260625b"></script>
+  <script src="xlsx.full.min.js?v=20260625a"></script>
+  <script src="config.js?v=20260625d"></script>
+  <script src="script.js?v=20260625d"></script>
 </body>
 </html>
 

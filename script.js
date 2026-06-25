@@ -2,7 +2,6 @@ let DATA = null;
 let ART_DATA = null;
 let LAST_RESULTS = [];
 let LAST_ORDER_ID = "";
-let PAY_ORDER_ID = "";
 
 const $ = (id) => document.getElementById(id);
 
@@ -131,9 +130,27 @@ function recommend() {
   LAST_RESULTS = results.slice(0, 200);
   LAST_ORDER_ID = makeOrderId();
   $("orderId").textContent = `查询号：${LAST_ORDER_ID}`;
-  $("notice").textContent = `共 ${LAST_RESULTS.length} 条候选。页面可免费浏览；导出完整 Excel 表格需要扫码支付。正式填报前仍需复核院校代码、专业组代码、专业代码和招生计划。`;
+  $("notice").textContent = `共 ${LAST_RESULTS.length} 条候选。页面可免费浏览，也可以保存为 Excel 表格。正式填报前仍需复核院校代码、专业组代码、专业代码和招生计划。`;
+  addLowScoreNotice(track, score);
   setExportState();
   renderResults(LAST_RESULTS);
+}
+
+function addLowScoreNotice(track, score) {
+  if (!score) return;
+  const lowPhysical = track === "物理类" && score < 438;
+  const edgePhysical = track === "物理类" && score >= 410 && score <= 440;
+  const lowHistory = track === "历史类" && score < 467;
+  if (!lowPhysical && !edgePhysical && !lowHistory) return;
+
+  const base = $("notice").textContent;
+  if (lowHistory) {
+    $("notice").textContent = `${base} 当前分数低于2025历史类本科控制线467分，普通本科可选范围非常窄，建议重点关注高职专科批、民办本科征集志愿、艺体/专项资格以及人工复核方案。`;
+  } else if (lowPhysical) {
+    $("notice").textContent = `${base} 当前分数低于2025物理类本科控制线438分，普通本科可选范围较窄，建议重点关注高职专科批、民办本科征集志愿、职业本科和人工复核方案。`;
+  } else if (edgePhysical) {
+    $("notice").textContent = `${base} 当前处在物理类本科压线区间，建议重点核对民办本科、职业本科、中外合作、征集志愿和专科保底方案。`;
+  }
 }
 
 function setMode() {
@@ -239,7 +256,7 @@ function copyMyInfo() {
   const isArt = $("queryType")?.value === "art";
   const rank = isArt ? ($("artRank").value || "") : (safeInt($("rank").value) || rankFromScore($("track").value, safeInt($("score").value)) || "");
   const text = [
-    "【我的高考成绩信息】",
+    "【我的志愿需求】",
     `查询类型：${isArt ? "艺体类" : "普通类"}`,
     `科类/类别：${isArt ? $("artCategory").value : $("track").value}`,
     `${isArt ? "文化分" : "分数"}：${$("score").value}`,
@@ -252,13 +269,13 @@ function copyMyInfo() {
   ].join("\n");
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text);
-    $("notice").textContent = "成绩信息已复制。";
+    $("notice").textContent = "志愿需求已复制，添加微信后可直接发送。";
   } else {
     $("notice").textContent = text;
   }
 }
 
-function buildExcelHtml() {
+function buildWorkbookRows() {
   const isArt = $("queryType")?.value === "art";
   const rank = isArt ? ($("artRank").value || "") : (safeInt($("rank").value) || rankFromScore($("track").value, safeInt($("score").value)));
   const infoRows = [
@@ -272,99 +289,61 @@ function buildExcelHtml() {
   ];
   const header = ["层级", "学校", "城市", "专业/说明", "专业组", "批次", "最低分", "最低位次", "位次差", "推荐理由"];
   const rows = LAST_RESULTS.map((r) => [r.tier, r.school, r.city, r.major, r.group, r.batch, r.score, r.rank, r.delta, r.reason]);
-  return `<!doctype html><html><head><meta charset="utf-8"></head><body>
-    <table border="1">
-      <tr><th colspan="10">四川高考志愿初筛表</th></tr>
-      ${infoRows.map((row) => `<tr><td>${escapeHtml(row[0])}</td><td colspan="9">${escapeHtml(row[1])}</td></tr>`).join("")}
-      <tr>${header.map((cell) => `<th>${escapeHtml(cell)}</th>`).join("")}</tr>
-      ${rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}
-      <tr><td>重要提示</td><td colspan="9">本表为志愿初筛结果，不等于录取承诺，也不能直接作为最终填报表。正式填报前必须复核院校代码、专业组代码、专业代码、招生计划、选科、体检、语种、校区、学费和调剂风险。</td></tr>
-    </table>
-  </body></html>`;
+  return [
+    ["四川高考志愿初筛表"],
+    ...infoRows,
+    [],
+    header,
+    ...rows,
+    [],
+    ["重要提示", "本表为志愿初筛结果，不等于录取承诺，也不能直接作为最终填报表。正式填报前必须复核院校代码、专业组代码、专业代码、招生计划、选科、体检、语种、校区、学费和调剂风险。"]
+  ];
 }
 
 function downloadExcel() {
   if (!LAST_RESULTS.length) return;
-  const html = buildExcelHtml();
-  const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
+  if (!window.XLSX) {
+    alert("导出组件加载失败，请刷新页面后再试。");
+    return;
+  }
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.aoa_to_sheet(buildWorkbookRows());
+  worksheet["!cols"] = [
+    { wch: 10 }, { wch: 20 }, { wch: 12 }, { wch: 42 }, { wch: 12 },
+    { wch: 18 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 60 }
+  ];
+  XLSX.utils.book_append_sheet(workbook, worksheet, "志愿初筛");
+  const output = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([output], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${LAST_ORDER_ID || "gaokao"}_recommendations.xls`;
+  a.download = `${LAST_ORDER_ID || "gaokao"}_recommendations.xlsx`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-async function startPaidExport() {
+function openShareModal() {
   if (!LAST_RESULTS.length) {
-    $("notice").textContent = "请先生成推荐结果，再导出表格。";
+    $("notice").textContent = "请先生成初筛表，再保存表格。";
     return;
   }
-  const config = window.GAOKAO_CONFIG || {};
-  PAY_ORDER_ID = makeOrderId();
-  $("payModal").classList.add("show");
-  $("paidDownloadBtn").disabled = true;
-  $("paidDownloadBtn").textContent = "等待付款后验证";
-  $("payQr").textContent = "正在创建订单...";
-
-  try {
-    const response = await fetch(`${config.workerUrl}/create-order`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        price: config.exportPrice || "9.90",
-        name: config.exportName || "高考志愿导出表格",
-        order_id: PAY_ORDER_ID
-      })
-    });
-    const data = await response.json();
-    const qr = data?.info?.qr || data?.qr || data?.data?.qr || data?.info?.pay_url || data?.pay_url || "";
-    renderPayQr(qr, data);
-    $("paidDownloadBtn").disabled = false;
-    $("paidDownloadBtn").textContent = "我已付款，验证并下载";
-  } catch (error) {
-    $("payQr").textContent = `创建订单失败：${error.message}`;
-  }
+  $("copyLinkBtn").textContent = "复制网站链接";
+  $("shareModal").classList.add("show");
+  $("shareModal").setAttribute("aria-hidden", "false");
 }
 
-function renderPayQr(qr, raw) {
-  const box = $("payQr");
-  if (!qr) {
-    box.textContent = `未拿到二维码字段，请检查 Worker/xorpay 返回：${JSON.stringify(raw)}`;
-    return;
-  }
-  const encoded = encodeURIComponent(qr);
-  const src = /^https?:\/\//.test(qr) && /\.(png|jpg|jpeg|gif|webp)(\?|$)/i.test(qr)
-    ? qr
-    : `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
-  box.innerHTML = `<img src="${escapeHtml(src)}" alt="支付二维码"><div style="display:none">${escapeHtml(qr)}</div>`;
+function closeShareModal() {
+  $("shareModal").classList.remove("show");
+  $("shareModal").setAttribute("aria-hidden", "true");
 }
 
-async function verifyPaymentAndDownload() {
-  const config = window.GAOKAO_CONFIG || {};
-  if (!PAY_ORDER_ID) return;
-  $("paidDownloadBtn").disabled = true;
-  $("paidDownloadBtn").textContent = "正在验证支付...";
-  try {
-    const response = await fetch(`${config.workerUrl}/check-order?order_id=${encodeURIComponent(PAY_ORDER_ID)}`);
-    const data = await response.json();
-    if (data.status === "success" || data.status === "payed") {
-      $("paidDownloadBtn").textContent = "验证成功，正在下载";
-      downloadExcel();
-      closePayModal();
-      return;
-    }
-    $("payQr").insertAdjacentHTML("beforeend", `<div style="margin-top:8px;color:#92400e">当前订单状态：${escapeHtml(data.status || "未知")}，请付款成功后再点验证。</div>`);
-  } catch (error) {
-    $("payQr").insertAdjacentHTML("beforeend", `<div style="margin-top:8px;color:#92400e">验证失败：${escapeHtml(error.message)}</div>`);
-  } finally {
-    $("paidDownloadBtn").disabled = false;
-    $("paidDownloadBtn").textContent = "我已付款，验证并下载";
+function copyShareLink() {
+  const link = "scgk114.com";
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link);
   }
-}
-
-function closePayModal() {
-  $("payModal").classList.remove("show");
+  if ($("copyLinkBtn")) $("copyLinkBtn").textContent = "✅ 已复制";
 }
 
 function copyWechat() {
@@ -394,10 +373,14 @@ async function init() {
   if ($("wechatText")) $("wechatText").textContent = config.wechatId || "franzxeth";
   $("queryType").addEventListener("change", setMode);
   $("runBtn").addEventListener("click", recommend);
-  $("exportBtn").addEventListener("click", startPaidExport);
+  $("exportBtn").addEventListener("click", openShareModal);
   $("copyInfoBtn").addEventListener("click", copyMyInfo);
-  $("paidDownloadBtn").addEventListener("click", verifyPaymentAndDownload);
-  $("closePayBtn").addEventListener("click", closePayModal);
+  $("copyLinkBtn").addEventListener("click", copyShareLink);
+  $("downloadExcelBtn").addEventListener("click", downloadExcel);
+  $("closeShareBtn").addEventListener("click", closeShareModal);
+  $("shareModal").addEventListener("click", (event) => {
+    if (event.target === $("shareModal")) closeShareModal();
+  });
   if ($("copyWechatBtn")) $("copyWechatBtn").addEventListener("click", copyWechat);
 
   const params = new URLSearchParams(location.search);
