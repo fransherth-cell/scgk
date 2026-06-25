@@ -1,5 +1,6 @@
 let DATA = null;
 let ART_DATA = null;
+let SCORE_SEGMENTS_2026 = null;
 let LAST_RESULTS = [];
 let LAST_ORDER_ID = "";
 
@@ -21,9 +22,34 @@ function safeInt(value) {
 }
 
 function rankFromScore(track, score) {
-  if (!score || !DATA) return 0;
+  if (!score) return 0;
+  const source2026 = SCORE_SEGMENTS_2026 && Array.isArray(SCORE_SEGMENTS_2026.segments)
+    ? SCORE_SEGMENTS_2026.segments
+    : [];
+  const row2026 = source2026.find((item) => item.track === track && Number(item.score) === Number(score));
+  if (row2026) return Number(row2026.cumulative_count);
+  if (!DATA) return 0;
   const row = DATA.scoreSegments.find((item) => item.track === track && Number(item.score) === Number(score));
   return row ? Number(row.cumulative_count) : 0;
+}
+
+function syncRankFromScore() {
+  if (!$('rank') || !$('score') || !$('track') || $('queryType')?.value === 'art') return;
+  const score = safeInt($('score').value);
+  if (!score) return;
+  const rank = rankFromScore($('track').value, score);
+  if (rank) {
+    $('rank').value = rank;
+    $('rank').dataset.auto = '1';
+    $('rank').placeholder = `??2026???????${rank}`;
+  } else if ($('rank').dataset.auto === '1') {
+    $('rank').value = '';
+    $('rank').placeholder = '????????????????';
+  }
+}
+
+function clearAutoRank() {
+  if ($('rank')) $('rank').dataset.auto = '0';
 }
 
 function classifyTier(candidateRank, minRank) {
@@ -67,6 +93,7 @@ function recommend() {
 
   const track = $("track").value;
   const score = safeInt($("score").value);
+  syncRankFromScore();
   const rank = safeInt($("rank").value) || rankFromScore(track, score);
 
   if (!rank) {
@@ -139,16 +166,16 @@ function recommend() {
 
 function addLowScoreNotice(track, score) {
   if (!score) return;
-  const lowPhysical = track === "物理类" && score < 438;
+  const lowPhysical = track === "物理类" && score < 435;
   const edgePhysical = track === "物理类" && score >= 410 && score <= 440;
-  const lowHistory = track === "历史类" && score < 467;
+  const lowHistory = track === "历史类" && score < 455;
   if (!lowPhysical && !edgePhysical && !lowHistory) return;
 
   const base = $("notice").textContent;
   if (lowHistory) {
-    $("notice").textContent = `${base} 当前分数低于2025历史类本科控制线467分，普通本科可选范围非常窄，建议重点关注高职专科批、民办本科征集志愿、艺体/专项资格以及人工复核方案。`;
+    $("notice").textContent = `${base} 当前分数低于2026历史类本科控制线455分，普通本科可选范围非常窄，建议重点关注高职专科批、民办本科征集志愿、艺体/专项资格以及人工复核方案。`;
   } else if (lowPhysical) {
-    $("notice").textContent = `${base} 当前分数低于2025物理类本科控制线438分，普通本科可选范围较窄，建议重点关注高职专科批、民办本科征集志愿、职业本科和人工复核方案。`;
+    $("notice").textContent = `${base} 当前分数低于2026物理类本科控制线435分，普通本科可选范围较窄，建议重点关注高职专科批、民办本科征集志愿、职业本科和人工复核方案。`;
   } else if (edgePhysical) {
     $("notice").textContent = `${base} 当前处在物理类本科压线区间，建议重点核对民办本科、职业本科、中外合作、征集志愿和专科保底方案。`;
   }
@@ -367,6 +394,12 @@ async function init() {
   const response = await fetch("data.json");
   DATA = await response.json();
   try {
+    const segmentResponse = await fetch("score_segments_2026.json?v=20260625a");
+    SCORE_SEGMENTS_2026 = await segmentResponse.json();
+  } catch (_) {
+    SCORE_SEGMENTS_2026 = null;
+  }
+  try {
     const artResponse = await fetch("art_data.json");
     ART_DATA = await artResponse.json();
     populateArtCategories();
@@ -378,6 +411,9 @@ async function init() {
   $("meta").textContent = `${DATA.meta.schoolCount} 所普通类学校，${DATA.meta.admissionCount} 条线位${ART_DATA ? `；艺体类 ${ART_DATA.schools.length} 所川内关注院校` : ""}`;
   if ($("wechatText")) $("wechatText").textContent = config.wechatId || "franzxeth";
   $("queryType").addEventListener("change", setMode);
+  if ($("score")) $("score").addEventListener("input", syncRankFromScore);
+  if ($("track")) $("track").addEventListener("change", syncRankFromScore);
+  if ($("rank")) $("rank").addEventListener("input", clearAutoRank);
   $("runBtn").addEventListener("click", recommend);
   $("exportBtn").addEventListener("click", shareAndDownloadExcel);
   $("copyInfoBtn").addEventListener("click", copyMyInfo);
@@ -399,6 +435,7 @@ async function init() {
     if (params.has(key) && $(id)) $(id).value = params.get(key);
   }
   setMode();
+  syncRankFromScore();
   if (params.has("submitted")) recommend();
 }
 
