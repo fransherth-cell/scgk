@@ -312,17 +312,18 @@
       <div class="bar">
         <span class="pill" id="meta">数据加载中</span>
         <span class="pill" id="orderId">查询号待生成</span>
+        <span class="pill" id="rankHint">输入分数后自动换算2026位次</span>
         <span class="pill">普通类建议提供位次；艺体类需提供文化分和专业分</span>
       </div>
       <p class="notice" id="notice">本工具用于志愿初筛，不等于录取承诺，也不能直接作为最终填报表。正式填报前必须复核院校代码、专业组代码、专业代码、招生计划、选科、体检、语种、校区、学费和调剂风险。</p>
       <p class="notice">本页用于初步筛选学校范围，结果可截图保存和沟通，不可直接作为最终填报表。</p>
-      <p class="notice">表格中的“专业组线”指该院校专业组往年最低投档分/位次，不代表具体专业；正式填报时仍需查看组内专业、专业代码和当年招生计划。</p>
+      <p class="notice">表格中的“专业组线（调档线）”指该院校专业组往年最低投档分/位次，不代表组内具体专业录取线；正式填报时仍需查看组内专业、专业代码和当年招生计划。</p>
     </section>
 
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>层级</th><th>学校</th><th>城市</th><th>专业/说明</th><th>组</th><th>最低分</th><th>最低位次</th><th>位次差</th><th>理由</th></tr>
+          <tr><th>层级</th><th>学校</th><th>城市</th><th>专业/专业组说明</th><th>组</th><th>最低分</th><th>最低位次</th><th>位次差</th><th>理由</th></tr>
         </thead>
         <tbody id="resultBody"></tbody>
       </table>
@@ -353,7 +354,7 @@
 
   <script src="xlsx.full.min.js?v=20260625a"></script>
   <script src="config.js?v=20260625d"></script>
-  <script src="script.js?v=20260625g"></script>
+  <script src="script.js?v=20260625i"></script>
 </body>
 </html>
 

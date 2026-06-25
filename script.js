@@ -36,20 +36,36 @@ function rankFromScore(track, score) {
 function syncRankFromScore() {
   if (!$('rank') || !$('score') || !$('track') || $('queryType')?.value === 'art') return;
   const score = safeInt($('score').value);
-  if (!score) return;
+  if (!score) {
+    if ($('rankHint')) $('rankHint').textContent = '输入分数后自动换算2026位次';
+    return;
+  }
   const rank = rankFromScore($('track').value, score);
   if (rank) {
     $('rank').value = rank;
     $('rank').dataset.auto = '1';
-    $('rank').placeholder = `??2026???????${rank}`;
-  } else if ($('rank').dataset.auto === '1') {
-    $('rank').value = '';
-    $('rank').placeholder = '????????????????';
+    $('rank').placeholder = `已按2026一分一段换算：${rank}`;
+    if ($('rankHint')) $('rankHint').textContent = `已按2026一分一段换算：${$('track').value}${score}分 ≈ ${rank}位`;
+  } else {
+    if ($('rank').dataset.auto === '1') $('rank').value = '';
+    $('rank').placeholder = '该分数段暂未录入，请手动填写位次';
+    if ($('rankHint')) $('rankHint').textContent = '该分数段暂未录入，请手动填写位次';
   }
 }
 
 function clearAutoRank() {
   if ($('rank')) $('rank').dataset.auto = '0';
+  if ($('rankHint')) $('rankHint').textContent = '已手动填写位次，将优先按手动位次计算';
+}
+
+function bindRankSyncEvents() {
+  if ($('score')) {
+    ['input', 'change', 'keyup', 'blur'].forEach((eventName) => {
+      $('score').addEventListener(eventName, syncRankFromScore);
+    });
+  }
+  if ($('track')) $('track').addEventListener('change', syncRankFromScore);
+  if ($('rank')) $('rank').addEventListener('input', clearAutoRank);
 }
 
 function classifyTier(candidateRank, minRank) {
@@ -71,9 +87,27 @@ function isJointProgram(text) {
 
 function compactMajor(value) {
   const text = value || "";
-  if (text.includes("专业组最低线")) return "专业组线";
+  if (isGroupLine(text)) return "专业组线（调档线）";
   if (text.startsWith("学校最低线")) return "学校最低线";
   return text;
+}
+
+function isGroupLine(text) {
+  return (text || "").includes("专业组最低线") || (text || "").includes("院校专业组最低线");
+}
+
+function limitResultsByTier(rows) {
+  const limits = { "冲": 20, "稳": 25, "保": 20, "兜底": 15 };
+  const picked = [];
+  const counts = {};
+  for (const row of rows) {
+    const max = limits[row.tier] || 0;
+    counts[row.tier] = counts[row.tier] || 0;
+    if (counts[row.tier] >= max) continue;
+    picked.push(row);
+    counts[row.tier] += 1;
+  }
+  return picked;
 }
 
 function makeOrderId() {
@@ -125,16 +159,27 @@ function recommend() {
     const delta = Number(row.min_rank) - rank;
     let sort = delta;
     const reasons = [`2025最低位次${row.min_rank}，考生位次${rank}，差值${delta}`];
+    const groupLine = isGroupLine(row.major_name || "");
 
     if (preferredCities.length && containsAny(row.city, preferredCities)) {
       sort -= rank * 0.03;
       reasons.push("城市偏好匹配");
     }
     if (preferredMajors.length && containsAny(programText, preferredMajors)) {
-      sort -= rank * 0.05;
-      reasons.push("专业偏好匹配");
+      if (groupLine) {
+        sort -= rank * 0.015;
+        reasons.push("专业方向可能相关，组内专业需复核");
+      } else {
+        sort -= rank * 0.06;
+        reasons.push("专业偏好匹配");
+      }
+    }
+    if (groupLine) {
+      sort += rank * 0.015;
+      reasons.push("专业组线（调档线），不代表具体专业录取线");
     }
     if ((row.batch || "").includes("过渡数据") || (row.batch || "").includes("聚合")) {
+      sort += rank * 0.01;
       reasons.push("需人工复核");
     }
 
@@ -155,10 +200,10 @@ function recommend() {
 
   const order = { "冲": 1, "稳": 2, "保": 3, "兜底": 4 };
   results.sort((a, b) => (order[a.tier] - order[b.tier]) || (a.sort - b.sort));
-  LAST_RESULTS = results.slice(0, 200);
+  LAST_RESULTS = limitResultsByTier(results);
   LAST_ORDER_ID = makeOrderId();
   $("orderId").textContent = `查询号：${LAST_ORDER_ID}`;
-  $("notice").textContent = `共 ${LAST_RESULTS.length} 条候选。页面可免费浏览，也可以保存为 Excel 表格。正式填报前仍需复核院校代码、专业组代码、专业代码和招生计划。`;
+  $("notice").textContent = `共筛出 ${results.length} 条候选，当前展示 ${LAST_RESULTS.length} 条重点结果。页面可免费浏览，也可以保存为 Excel 表格。正式填报前仍需复核院校代码、专业组代码、专业代码和招生计划。`;
   addLowScoreNotice(track, score);
   setExportState();
   renderResults(LAST_RESULTS);
@@ -315,7 +360,7 @@ function buildWorkbookRows() {
     ["偏好城市", $("preferredCities").value],
     ["偏好专业", $("preferredMajors").value]
   ];
-  const header = ["层级", "学校", "城市", "专业/说明", "专业组", "批次", "最低分", "最低位次", "位次差", "推荐理由"];
+  const header = ["层级", "学校", "城市", "专业/专业组说明", "专业组", "批次", "最低分", "最低位次", "位次差", "推荐理由"];
   const rows = LAST_RESULTS.map((r) => [r.tier, r.school, r.city, r.major, r.group, r.batch, r.score, r.rank, r.delta, r.reason]);
   return [
     ["四川高考志愿初筛表"],
@@ -411,9 +456,7 @@ async function init() {
   $("meta").textContent = `${DATA.meta.schoolCount} 所普通类学校，${DATA.meta.admissionCount} 条线位${ART_DATA ? `；艺体类 ${ART_DATA.schools.length} 所川内关注院校` : ""}`;
   if ($("wechatText")) $("wechatText").textContent = config.wechatId || "franzxeth";
   $("queryType").addEventListener("change", setMode);
-  if ($("score")) $("score").addEventListener("input", syncRankFromScore);
-  if ($("track")) $("track").addEventListener("change", syncRankFromScore);
-  if ($("rank")) $("rank").addEventListener("input", clearAutoRank);
+  bindRankSyncEvents();
   $("runBtn").addEventListener("click", recommend);
   $("exportBtn").addEventListener("click", shareAndDownloadExcel);
   $("copyInfoBtn").addEventListener("click", copyMyInfo);
