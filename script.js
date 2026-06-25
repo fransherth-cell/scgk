@@ -4,6 +4,7 @@ let LAST_RESULTS = [];
 let LAST_ORDER_ID = "";
 
 const $ = (id) => document.getElementById(id);
+const SHARE_TEXT = "四川高考志愿初筛工具 — 输入分数与选科，基于2025年录取位次数据，5秒生成冲稳保清单 → scgk114.com";
 
 function splitTerms(value) {
   return (value || "").replace(/[，、；;]/g, ",").split(",").map((item) => item.trim()).filter(Boolean);
@@ -323,27 +324,32 @@ function downloadExcel() {
   URL.revokeObjectURL(url);
 }
 
-function openShareModal() {
+function shareAndDownloadExcel() {
   if (!LAST_RESULTS.length) {
     $("notice").textContent = "请先生成初筛表，再保存表格。";
     return;
   }
-  $("copyLinkBtn").textContent = "复制网站链接";
-  $("shareModal").classList.add("show");
-  $("shareModal").setAttribute("aria-hidden", "false");
-}
-
-function closeShareModal() {
-  $("shareModal").classList.remove("show");
-  $("shareModal").setAttribute("aria-hidden", "true");
-}
-
-function copyShareLink() {
-  const link = "scgk114.com";
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(SHARE_TEXT);
   }
-  if ($("copyLinkBtn")) $("copyLinkBtn").textContent = "✅ 已复制";
+  const btn = $("exportBtn");
+  btn.textContent = "✅ 已复制，表格下载中…";
+  showToast("✅ 已复制推荐语，转发给身边也在填志愿的家长吧");
+  downloadExcel();
+  window.setTimeout(() => {
+    btn.textContent = "📥 分享并下载 Excel 表格";
+  }, 2000);
+}
+
+function showToast(message) {
+  const toast = $("toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("show");
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => {
+    toast.classList.remove("show");
+  }, 5000);
 }
 
 function copyWechat() {
@@ -373,14 +379,8 @@ async function init() {
   if ($("wechatText")) $("wechatText").textContent = config.wechatId || "franzxeth";
   $("queryType").addEventListener("change", setMode);
   $("runBtn").addEventListener("click", recommend);
-  $("exportBtn").addEventListener("click", openShareModal);
+  $("exportBtn").addEventListener("click", shareAndDownloadExcel);
   $("copyInfoBtn").addEventListener("click", copyMyInfo);
-  $("copyLinkBtn").addEventListener("click", copyShareLink);
-  $("downloadExcelBtn").addEventListener("click", downloadExcel);
-  $("closeShareBtn").addEventListener("click", closeShareModal);
-  $("shareModal").addEventListener("click", (event) => {
-    if (event.target === $("shareModal")) closeShareModal();
-  });
   if ($("copyWechatBtn")) $("copyWechatBtn").addEventListener("click", copyWechat);
 
   const params = new URLSearchParams(location.search);
