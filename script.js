@@ -22,40 +22,56 @@ function safeInt(value) {
 }
 
 function rankFromScore(track, score) {
-  if (!score) return 0;
+  return scoreSegmentFromScore(track, score)?.cumulative_count || 0;
+}
+
+function scoreSegmentFromScore(track, score) {
+  if (!score) return null;
   const source2026 = SCORE_SEGMENTS_2026 && Array.isArray(SCORE_SEGMENTS_2026.segments)
     ? SCORE_SEGMENTS_2026.segments
     : [];
   const row2026 = source2026.find((item) => item.track === track && Number(item.score) === Number(score));
-  if (row2026) return Number(row2026.cumulative_count);
-  if (!DATA) return 0;
+  if (row2026) {
+    return {
+      cumulative_count: Number(row2026.cumulative_count),
+      people: Number(row2026.people || 0),
+      year: 2026
+    };
+  }
+  if (!DATA) return null;
   const row = DATA.scoreSegments.find((item) => item.track === track && Number(item.score) === Number(score));
-  return row ? Number(row.cumulative_count) : 0;
+  return row ? {
+    cumulative_count: Number(row.cumulative_count),
+    people: Number(row.people || row.count || 0),
+    year: DATA.meta?.year || 2025
+  } : null;
 }
 
 function syncRankFromScore() {
   if (!$('rank') || !$('score') || !$('track') || $('queryType')?.value === 'art') return;
   const score = safeInt($('score').value);
   if (!score) {
-    if ($('rankHint')) $('rankHint').textContent = '输入分数后自动换算2026位次';
+    if ($('rankHint')) $('rankHint').textContent = '?????????2026??';
     return;
   }
-  const rank = rankFromScore($('track').value, score);
+  const segment = scoreSegmentFromScore($('track').value, score);
+  const rank = segment?.cumulative_count || 0;
   if (rank) {
     $('rank').value = rank;
     $('rank').dataset.auto = '1';
-    $('rank').placeholder = `已按2026一分一段换算：${rank}`;
-    if ($('rankHint')) $('rankHint').textContent = `已按2026一分一段换算：${$('track').value}${score}分 ≈ ${rank}位`;
+    $('rank').placeholder = `??${segment.year}???????${rank}`;
+    const peopleText = segment.people ? `???${segment.people}?` : '';
+    if ($('rankHint')) $('rankHint').textContent = `??${segment.year}???????${$('track').value}${score}? ? ${rank}?${peopleText}`;
   } else {
     if ($('rank').dataset.auto === '1') $('rank').value = '';
-    $('rank').placeholder = '该分数段暂未录入，请手动填写位次';
-    if ($('rankHint')) $('rankHint').textContent = '该分数段暂未录入，请手动填写位次';
+    $('rank').placeholder = '????????????????';
+    if ($('rankHint')) $('rankHint').textContent = '????????????????';
   }
 }
 
 function clearAutoRank() {
   if ($('rank')) $('rank').dataset.auto = '0';
-  if ($('rankHint')) $('rankHint').textContent = '已手动填写位次，将优先按手动位次计算';
+  if ($('rankHint')) $('rankHint').textContent = '??????????????????';
 }
 
 function bindRankSyncEvents() {
