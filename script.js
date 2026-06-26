@@ -51,7 +51,7 @@ function syncRankFromScore() {
   if (!$('rank') || !$('score') || !$('track') || $('queryType')?.value === 'art') return;
   const score = safeInt($('score').value);
   if (!score) {
-    if ($('rankHint')) $('rankHint').textContent = '?????????2026??';
+    if ($('rankHint')) $('rankHint').textContent = '\u8f93\u5165\u5206\u6570\u540e\u81ea\u52a8\u6362\u7b972026\u4f4d\u6b21';
     return;
   }
   const segment = scoreSegmentFromScore($('track').value, score);
@@ -59,19 +59,19 @@ function syncRankFromScore() {
   if (rank) {
     $('rank').value = rank;
     $('rank').dataset.auto = '1';
-    $('rank').placeholder = `??${segment.year}???????${rank}`;
-    const peopleText = segment.people ? `???${segment.people}?` : '';
-    if ($('rankHint')) $('rankHint').textContent = `??${segment.year}???????${$('track').value}${score}? ? ${rank}?${peopleText}`;
+    $('rank').placeholder = `\u5df2\u6309${segment.year}\u4e00\u5206\u4e00\u6bb5\u6362\u7b97\uff1a${rank}`;
+    const peopleText = segment.people ? `\uff0c\u540c\u5206${segment.people}\u4eba` : '';
+    if ($('rankHint')) $('rankHint').textContent = `\u5df2\u6309${segment.year}\u4e00\u5206\u4e00\u6bb5\u6362\u7b97\uff1a${$('track').value}${score}\u5206 \u2248 ${rank}\u4f4d${peopleText}`;
   } else {
     if ($('rank').dataset.auto === '1') $('rank').value = '';
-    $('rank').placeholder = '????????????????';
-    if ($('rankHint')) $('rankHint').textContent = '????????????????';
+    $('rank').placeholder = '\u8be5\u5206\u6570\u6bb5\u6682\u672a\u5f55\u5165\uff0c\u8bf7\u624b\u52a8\u586b\u5199\u4f4d\u6b21';
+    if ($('rankHint')) $('rankHint').textContent = '\u8be5\u5206\u6570\u6bb5\u6682\u672a\u5f55\u5165\uff0c\u8bf7\u624b\u52a8\u586b\u5199\u4f4d\u6b21';
   }
 }
 
 function clearAutoRank() {
   if ($('rank')) $('rank').dataset.auto = '0';
-  if ($('rankHint')) $('rankHint').textContent = '??????????????????';
+  if ($('rankHint')) $('rankHint').textContent = '\u5df2\u624b\u52a8\u586b\u5199\u4f4d\u6b21\uff0c\u5c06\u4f18\u5148\u6309\u624b\u52a8\u4f4d\u6b21\u8ba1\u7b97';
 }
 
 function bindRankSyncEvents() {
@@ -110,6 +110,98 @@ function compactMajor(value) {
 
 function isGroupLine(text) {
   return (text || "").includes("专业组最低线") || (text || "").includes("院校专业组最低线");
+}
+
+const MAJOR_MATCH_RULES = [
+  {
+    aliases: ["计算机", "软件", "人工智能", "大数据", "网络安全", "信息安全"],
+    strong: ["计算机", "软件工程", "人工智能", "数据科学", "大数据", "网络空间安全", "信息安全", "智能科学"],
+    related: ["电子信息", "通信工程", "自动化", "物联网", "信息工程", "数字媒体技术"]
+  },
+  {
+    aliases: ["电子", "通信", "集成电路", "微电子"],
+    strong: ["电子信息", "电子科学", "通信工程", "集成电路", "微电子", "光电信息"],
+    related: ["自动化", "计算机", "人工智能", "电气工程", "信息工程"]
+  },
+  {
+    aliases: ["电气", "电力", "能源"],
+    strong: ["电气工程", "电气类", "智能电网", "能源与动力", "新能源"],
+    related: ["自动化", "电子信息", "机械", "测控技术"]
+  },
+  {
+    aliases: ["法学", "法律", "知识产权"],
+    strong: ["法学", "知识产权"],
+    related: ["政治学", "社会学", "公安", "公共管理", "马克思主义理论"]
+  },
+  {
+    aliases: ["汉语言", "中文", "文学", "新闻"],
+    strong: ["汉语言文学", "中国语言文学", "中文", "新闻传播", "网络与新媒体", "广播电视学"],
+    related: ["历史学", "哲学", "教育学", "外国语言文学"]
+  },
+  {
+    aliases: ["师范", "教育", "小学教育", "学前教育"],
+    strong: ["师范", "教育学", "小学教育", "学前教育", "特殊教育"],
+    related: ["汉语言文学", "数学", "英语", "历史学", "地理科学", "物理学", "化学", "生物科学"]
+  },
+  {
+    aliases: ["财经", "金融", "会计", "经济", "审计", "财政"],
+    strong: ["金融", "会计", "经济学", "财政", "审计", "税收", "保险", "投资学"],
+    related: ["工商管理", "财务管理", "国际经济与贸易", "统计学", "经济管理"]
+  },
+  {
+    aliases: ["医学", "临床", "口腔", "护理", "药学"],
+    strong: ["临床医学", "口腔医学", "医学影像", "麻醉学", "儿科学", "中医学", "药学", "护理学"],
+    related: ["公共卫生", "预防医学", "生物医学", "医学技术", "康复治疗"]
+  },
+  {
+    aliases: ["机械", "车辆", "智能制造"],
+    strong: ["机械", "车辆工程", "智能制造", "机器人工程", "工业设计"],
+    related: ["自动化", "电气工程", "能源与动力", "材料成型"]
+  },
+  {
+    aliases: ["土木", "建筑", "交通"],
+    strong: ["土木工程", "建筑学", "城乡规划", "交通运输", "交通工程"],
+    related: ["工程管理", "测绘", "地质工程", "环境工程"]
+  },
+  {
+    aliases: ["管理", "工商", "行政", "公共管理"],
+    strong: ["工商管理", "公共管理", "行政管理", "人力资源", "市场营销", "物流管理"],
+    related: ["经济学", "会计", "旅游管理", "电子商务"]
+  },
+  {
+    aliases: ["外语", "英语", "日语", "翻译"],
+    strong: ["英语", "翻译", "商务英语", "日语", "法语", "德语", "西班牙语", "外国语言文学"],
+    related: ["国际经济与贸易", "新闻传播", "教育学"]
+  }
+];
+
+function getMajorMatch(programText, preferredMajors, groupLine) {
+  if (!preferredMajors.length) return { level: 0, label: "", sortBoost: 0 };
+  const text = programText || "";
+  let best = { level: 0, label: "", sortBoost: 0 };
+
+  for (const term of preferredMajors) {
+    if (!term) continue;
+    if (text.includes(term)) {
+      best = { level: groupLine ? 1 : 3, label: groupLine ? "专业方向可能相关，组内专业需复核" : "专业强匹配", sortBoost: groupLine ? 0.015 : 0.07 };
+    }
+    for (const rule of MAJOR_MATCH_RULES) {
+      const hitAlias = rule.aliases.some((alias) => term.includes(alias) || alias.includes(term));
+      if (!hitAlias) continue;
+      if (rule.strong.some((word) => text.includes(word)) && best.level < (groupLine ? 1 : 3)) {
+        best = { level: groupLine ? 1 : 3, label: groupLine ? "专业方向可能相关，组内专业需复核" : "专业强匹配", sortBoost: groupLine ? 0.015 : 0.07 };
+      } else if (rule.related.some((word) => text.includes(word)) && best.level < 2 && !groupLine) {
+        best = { level: 2, label: "专业方向相关", sortBoost: 0.04 };
+      } else if (hitAlias && groupLine && best.level < 1) {
+        best = { level: 1, label: "仅为专业组调档线，组内专业需复核", sortBoost: 0 };
+      }
+    }
+  }
+
+  if (preferredMajors.length && best.level === 0 && groupLine) {
+    return { level: 1, label: "未见明确专业，仅供学校/专业组层面参考", sortBoost: 0 };
+  }
+  return best;
 }
 
 function limitResultsByTier(rows) {
@@ -181,14 +273,10 @@ function recommend() {
       sort -= rank * 0.03;
       reasons.push("城市偏好匹配");
     }
-    if (preferredMajors.length && containsAny(programText, preferredMajors)) {
-      if (groupLine) {
-        sort -= rank * 0.015;
-        reasons.push("专业方向可能相关，组内专业需复核");
-      } else {
-        sort -= rank * 0.06;
-        reasons.push("专业偏好匹配");
-      }
+    const majorMatch = getMajorMatch(programText, preferredMajors, groupLine);
+    if (majorMatch.level) {
+      sort -= rank * majorMatch.sortBoost;
+      reasons.push(majorMatch.label);
     }
     if (groupLine) {
       sort += rank * 0.015;
