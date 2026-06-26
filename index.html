@@ -145,15 +145,6 @@
     .art-field { display: none; }
     body.art-mode .art-field { display: block; }
     body.art-mode .normal-only { display: none; }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(180px, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .card { background: white; border: 1px solid var(--line); padding: 12px; }
-    .card strong { display: block; margin-bottom: 5px; }
-    .card span { color: var(--muted); font-size: 13px; line-height: 1.45; }
     table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; font-size: 12px; }
     th, td { border: 1px solid #e5e7eb; padding: 6px 7px; vertical-align: top; line-height: 1.45; }
     th { background: #eef2f7; text-align: left; font-weight: 650; }
@@ -264,14 +255,14 @@
       background: #9a3412;
     }
     @media (max-width: 1000px) {
-      .grid, .cards { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr 1fr; }
       .query-layout { grid-template-columns: 1fr; }
       .form-grid { grid-template-columns: 1fr 1fr; }
       .side-actions { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 12px; }
     }
     @media (max-width: 640px) {
       main { padding: 12px; }
-      .grid, .cards, .form-grid { grid-template-columns: 1fr; }
+      .grid, .form-grid { grid-template-columns: 1fr; }
       .contact-box { grid-template-columns: 1fr; }
       table { min-width: 920px; }
       .table-wrap { overflow-x: auto; }
@@ -281,11 +272,27 @@
 <body>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <main>
-    <section class="cards">
-      <div class="card"><strong>只做四川</strong><span>不撒全国网，专注川内热门校。50+所高校2025年录取位次精准整理。</span></div>
-      <div class="card"><strong>5秒出结果</strong><span>不用逐个搜学校、翻官网。输入分数+选科，冲稳保清单即时呈现。</span></div>
-      <div class="card"><strong>比百度全</strong><span>每条数据从官网逐条核过。包含专业组、批次、位次差。</span></div>
-    </section>
+    <div class="contact-line" id="contactLine">
+      <strong>想要更稳妥的填报方案？</strong>
+      当前结果为系统初筛，适合快速判断冲稳保范围。正式填报前，还需要结合院校代码、专业组、招生计划、校区学费、专业限制和调剂风险进一步核对。
+      如需进一步判断，我们可以根据你的分数、位次、科类、城市偏好和专业方向，整理一份更适合你的专属志愿方案。
+      请联系我们，并发送科类、分数、位次、想去的城市和专业方向。
+      <div class="contact-prep">
+        <button id="copyInfoBtn" type="button">复制我的志愿需求</button>
+        <span>添加微信后，请直接发送您的志愿需求，方便快速复核。</span>
+      </div>
+      <div class="wechat-contact">
+        <img src="wechat-qr.png" alt="微信二维码">
+        <div>
+          微信联系方式：<span class="wechat-id" id="wechatText">franzxeth</span><br>添加后请发送您的志愿需求。
+          <div class="wechat-actions">
+            <a class="button" href="wechat-qr.png" download="wechat-qr.png" target="_blank" rel="noopener">打开/保存二维码</a>
+            <button id="copyWechatBtn" type="button">复制微信联系方式</button>
+          </div>
+          <div class="mobile-save-tip">手机用户可点开二维码后长按保存，再到微信扫一扫中选择相册识别。</div>
+        </div>
+      </div>
+    </div>
 
     <section class="panel">
       <div class="query-layout">
@@ -329,27 +336,6 @@
       </table>
     </div>
     <div class="empty" id="empty">输入信息后生成结果。</div>
-    <div class="contact-line" id="contactLine">
-      <strong>想要更稳妥的填报方案？</strong>
-      当前结果为系统初筛，适合快速判断冲稳保范围。正式填报前，还需要结合院校代码、专业组、招生计划、校区学费、专业限制和调剂风险进一步核对。
-      如需进一步判断，我们可以根据你的分数、位次、科类、城市偏好和专业方向，整理一份更适合你的专属志愿方案。
-      请联系我们，并发送科类、分数、位次、想去的城市和专业方向。
-      <div class="contact-prep">
-        <button id="copyInfoBtn" type="button">复制我的志愿需求</button>
-        <span>添加微信后，请直接发送您的志愿需求，方便快速复核。</span>
-      </div>
-      <div class="wechat-contact">
-        <img src="wechat-qr.png" alt="微信二维码">
-        <div>
-          微信联系方式：<span class="wechat-id" id="wechatText">franzxeth</span><br>添加后请发送您的志愿需求。
-          <div class="wechat-actions">
-            <a class="button" href="wechat-qr.png" download="wechat-qr.png" target="_blank" rel="noopener">打开/保存二维码</a>
-            <button id="copyWechatBtn" type="button">复制微信联系方式</button>
-          </div>
-          <div class="mobile-save-tip">手机用户可点开二维码后长按保存，再到微信扫一扫中选择相册识别。</div>
-        </div>
-      </div>
-    </div>
   </main>
 
   <script src="xlsx.full.min.js?v=20260625a"></script>
