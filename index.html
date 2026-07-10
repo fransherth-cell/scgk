@@ -1,14 +1,188 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>scgk114-mvp</title>
-    <script type="module" crossorigin src="./assets/index-o_iIdDn4.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DFbb5A3Y.css">
+    <meta name="description" content="SCGK114 Codex 内测说明与公开用量看板" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>SCGK114 Codex 内测说明</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">SC</div>
+          <div>
+            <strong>SCGK114</strong>
+            <span>Codex 内测入口</span>
+          </div>
+        </div>
+        <nav class="nav-list" aria-label="页面导航">
+          <a href="#usage">公开用量</a>
+          <a href="#setup">接入方式</a>
+          <a href="#rules">使用规则</a>
+          <a href="#faq">常见问题</a>
+        </nav>
+        <div class="sidebar-footer">
+          <span class="status-pill"><i></i>API 在线</span>
+          <p>只展示脱敏后的只读统计，不公开后台权限或完整密钥。</p>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">OpenAI / Codex Gateway</p>
+            <h1>订阅额度池公开说明</h1>
+            <p class="lead">成员只需要自己的内部 API Key。管理员后台继续留给维护人员，公开页面只显示每日、每人、每个 Key 的用量和估算金额。</p>
+          </div>
+          <a class="primary-button" href="https://api.scgk114.com/keys" rel="noreferrer">复制个人 Key</a>
+        </header>
+
+        <section id="usage" class="view-stack">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Public Usage</p>
+              <h2>公开用量看板</h2>
+            </div>
+            <span id="refreshBadge" class="soft-badge">读取中</span>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="metric-card">
+              <span>今日请求</span>
+              <strong id="todayRequests">-</strong>
+              <p>按 API Key 汇总</p>
+            </article>
+            <article class="metric-card">
+              <span>今日 Tokens</span>
+              <strong id="todayTokens">-</strong>
+              <p>输入、输出与缓存合计</p>
+            </article>
+            <article class="metric-card">
+              <span>今日估算金额</span>
+              <strong id="todayCost">-</strong>
+              <p>按 Sub2API actual_cost</p>
+            </article>
+            <article class="metric-card">
+              <span>本月估算金额</span>
+              <strong id="monthCost">-</strong>
+              <p>公开页仅展示折算结果</p>
+            </article>
+          </div>
+
+          <section class="panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Members</p>
+                <h2>成员用量</h2>
+              </div>
+              <span class="soft-badge">不显示完整 Key</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>成员 / Key</th>
+                    <th>今日请求</th>
+                    <th>今日 Tokens</th>
+                    <th>今日金额</th>
+                    <th>本月请求</th>
+                    <th>本月金额</th>
+                    <th>最近使用</th>
+                  </tr>
+                </thead>
+                <tbody id="memberRows">
+                  <tr><td colspan="7">正在读取公开统计...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Daily Trend</p>
+                <h2>最近七天</h2>
+              </div>
+              <span class="soft-badge">按天汇总</span>
+            </div>
+            <div id="trendChart" class="trend-chart"></div>
+          </section>
+        </section>
+
+        <section id="setup" class="view-stack">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Codex Setup</p>
+              <h2>接入方式</h2>
+            </div>
+          </div>
+          <div class="setup-grid">
+            <section class="panel">
+              <h3>Base URL</h3>
+              <div class="endpoint-box">
+                <code>https://api.scgk114.com/v1</code>
+              </div>
+              <p class="muted-copy">API Key 请到个人密钥页复制，只复制自己的 Key，不要发群里。</p>
+            </section>
+            <section class="panel">
+              <h3>Windows 默认位置</h3>
+              <pre>%USERPROFILE%\.codex\config.toml
+%USERPROFILE%\.codex\auth.json</pre>
+            </section>
+          </div>
+        </section>
+
+        <section id="rules" class="view-stack">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Rules</p>
+              <h2>使用规则</h2>
+            </div>
+          </div>
+          <div class="policy-grid">
+            <article class="policy-card">
+              <strong>一人一 Key</strong>
+              <p>每个成员单独分配内部 Key，方便统计和暂停。</p>
+            </article>
+            <article class="policy-card">
+              <strong>小范围内测</strong>
+              <p>先 1-2 人真实任务验证，稳定后再扩到 5 人。</p>
+            </article>
+            <article class="policy-card">
+              <strong>只读公开</strong>
+              <p>本页只展示脱敏统计，不提供创建、删除或重置权限。</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="faq" class="view-stack">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">FAQ</p>
+              <h2>常见问题</h2>
+            </div>
+          </div>
+          <section class="panel faq-list">
+            <details open>
+              <summary>为什么不用打开实际后台？</summary>
+              <p>实际后台能管理 Key、上游账号和订阅，不适合给普通成员。公开页只读 JSON，只显示必要统计。</p>
+            </details>
+            <details>
+              <summary>金额是不是精确账单？</summary>
+              <p>这里展示 Sub2API 记录的估算扣除值，适合内部对账和提醒；最终以后台记录和实际订阅情况为准。</p>
+            </details>
+            <details>
+              <summary>页面看不到数据怎么办？</summary>
+              <p>可能是公开统计文件还没生成、API 域名临时不可访问，或最近没有请求。稍后刷新即可。</p>
+            </details>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js" defer></script>
   </body>
 </html>
