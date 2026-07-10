@@ -94,16 +94,14 @@ function bindKeyReminder() {
   if (!link) return;
 
   link.addEventListener('click', (event) => {
-    const ok = window.confirm([
-      '打开测试 Key 页面前请确认：',
+    event.preventDefault();
+    window.alert([
+      '测试 Key 不在公开说明书页面直接展示。',
       '',
-      '1. 只复制自己的测试 Key。',
-      '2. 不要把完整 Key 发到群里或截图外传。',
-      '3. 测试阶段不要跑大批量任务。',
-      '4. 怀疑泄露时立即联系管理员重置。'
+      '请向管理员一对一领取自己的测试 Key。',
+      '拿到后只填到自己的 Codex 配置里，不要发群里或截图外传。',
+      '测试阶段不要跑大批量任务；怀疑泄露时立即联系管理员重置。'
     ].join('\n'));
-
-    if (!ok) event.preventDefault();
   });
 }
 
