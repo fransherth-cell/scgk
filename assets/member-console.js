@@ -6,6 +6,39 @@
     : "https://api.scgk114.com";
   const ACCESS_BASE_URL = "https://api.scgk114.com/v1";
   const CLOUD_DRIVE_URL = "#";
+  const DEMO_ACCESS_CODES = {
+    "SCGK-DEMO-01": {
+      sessionToken: "demo-session-scgk-demo-01",
+      profile: {
+        name: "测试成员 01",
+        role: "前端流程测试",
+        keyName: "demo-member-01"
+      },
+      usage: {
+        generated_at: "前端演示数据",
+        groupMonthlyTokenQuota: 100000000,
+        totals: {
+          month_tokens: 24000000,
+          today_tokens: 860000,
+          month_requests: 318
+        },
+        memberUsage: {
+          month_tokens: 3200000,
+          today_tokens: 128000,
+          month_requests: 42
+        },
+        daily: [
+          { label: "D-6", tokens: 1800000 },
+          { label: "D-5", tokens: 2400000 },
+          { label: "D-4", tokens: 1900000 },
+          { label: "D-3", tokens: 3100000 },
+          { label: "D-2", tokens: 2800000 },
+          { label: "D-1", tokens: 3600000 },
+          { label: "今天", tokens: 860000 }
+        ]
+      }
+    }
+  };
 
   const state = {
     sessionToken: window.localStorage.getItem("scgk114-session-token") || "",
@@ -54,23 +87,34 @@
   }
 
   async function login(code) {
+    const demoAccount = getDemoAccountByCode(code);
+    if (demoAccount) {
+      applySession(demoAccount);
+      state.notice = "当前为前端演示登录码，仅用于测试页面流程。";
+      renderConsole();
+      return;
+    }
+
     const data = await apiRequest("/member/login", {
       method: "POST",
       body: JSON.stringify({ code })
     });
 
-    state.sessionToken = data.sessionToken;
-    state.member = data.profile;
-    state.usage = data.usage;
-    state.activeTab = "usage";
-    state.error = "";
-    window.localStorage.setItem("scgk114-session-token", state.sessionToken);
+    applySession(data);
     renderConsole();
   }
 
   async function restoreSession() {
     if (!state.sessionToken) {
       renderLogin();
+      return;
+    }
+
+    const demoAccount = getDemoAccountByToken(state.sessionToken);
+    if (demoAccount) {
+      applySession(demoAccount);
+      state.notice = "当前为前端演示登录码，仅用于测试页面流程。";
+      renderConsole();
       return;
     }
 
@@ -89,6 +133,13 @@
 
   async function loadUsage() {
     if (!state.sessionToken) return;
+    const demoAccount = getDemoAccountByToken(state.sessionToken);
+    if (demoAccount) {
+      state.usage = demoAccount.usage;
+      state.error = "";
+      return;
+    }
+
     try {
       state.usage = await apiRequest("/member/usage", {
         method: "GET",
@@ -108,6 +159,27 @@
     state.notice = "";
     window.localStorage.removeItem("scgk114-session-token");
     renderLogin();
+  }
+
+  function normalizeCode(code) {
+    return String(code || "").trim().toUpperCase();
+  }
+
+  function getDemoAccountByCode(code) {
+    return DEMO_ACCESS_CODES[normalizeCode(code)] || null;
+  }
+
+  function getDemoAccountByToken(token) {
+    return Object.values(DEMO_ACCESS_CODES).find((account) => account.sessionToken === token) || null;
+  }
+
+  function applySession(data) {
+    state.sessionToken = data.sessionToken;
+    state.member = data.profile;
+    state.usage = data.usage;
+    state.activeTab = "usage";
+    state.error = "";
+    window.localStorage.setItem("scgk114-session-token", state.sessionToken);
   }
 
   function renderLogin(errorText) {
@@ -156,7 +228,7 @@
             </div>
             <p class="error-text">${escapeHtml(errorText || "")}</p>
             <div class="demo-codes">
-              <p class="muted">本地演示码：<code>SCGK-TEST-01</code> / <code>SCGK-TEST-02</code> / <code>SCGK-TEST-06</code></p>
+              <p class="muted">前端演示码：<code>SCGK-DEMO-01</code></p>
             </div>
           </form>
         </section>
@@ -663,10 +735,27 @@
   async function exportConfig() {
     try {
       closeExportConfirm();
-      const data = await apiRequest("/member/export-config", {
-        method: "POST",
-        headers: authHeaders()
-      });
+      const demoAccount = getDemoAccountByToken(state.sessionToken);
+      const data = demoAccount
+        ? {
+            filename: "SCGK114-测试成员01-演示接入信息.txt",
+            content: [
+              "SCGK114 前端演示接入信息",
+              "",
+              "说明：这是前端流程测试文件，不包含真实 API Key，不能用于实际模型调用。",
+              "",
+              `成员：${demoAccount.profile.name}`,
+              `Base URL：${ACCESS_BASE_URL}`,
+              "API Key：DEMO_KEY_NOT_FOR_REAL_USE",
+              "推荐文本模型：gpt-5.4-mini / gpt-5.5",
+              "",
+              "正式使用时，请等待管理员通过 member-api 后端发放专属 Key。"
+            ].join("\n")
+          }
+        : await apiRequest("/member/export-config", {
+            method: "POST",
+            headers: authHeaders()
+          });
       const blob = new Blob([data.content], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
