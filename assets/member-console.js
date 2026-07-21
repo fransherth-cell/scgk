@@ -6,18 +6,7 @@
     : "https://api.scgk114.com";
   const ACCESS_BASE_URL = "https://api.scgk114.com/v1";
   const CLOUD_DRIVE_URL = "https://pan.baidu.com/s/1Z5hL2lCHzCSBf2FDErANsg?pwd=hhir";
-  const DEMO_ACCESS_CODES = {
-    "SCGK-01-LKY-7Q2A": buildDemoAccount("01", "李锟杨", "调试员", "member-01", 3200000, 128000, 42),
-    "SCGK-02-ZDN-8M4K": buildDemoAccount("02", "张岱南", "老师-组长", "member-02", 2800000, 96000, 35),
-    "SCGK-03-HHJ-5R9C": buildDemoAccount("03", "何恒基", "成员", "member-03", 2100000, 74000, 28),
-    "SCGK-04-MSY-2X7P": buildDemoAccount("04", "马书杨", "成员", "member-04", 1750000, 68000, 24),
-    "SCGK-05-YJR-9D3N": buildDemoAccount("05", "余佳芮", "成员", "member-05", 1420000, 51000, 21),
-    "SCGK-06-ZZX-4K8V": buildDemoAccount("06", "张梓炫", "成员", "member-06", 1180000, 47000, 18),
-    "SCGK-07-PWB-6T1J": buildDemoAccount("07", "潘魏博", "成员", "member-07", 920000, 36000, 15),
-    "SCGK-08-ZYY-3N6W": buildDemoAccount("08", "张胤禹", "成员", "member-08", 760000, 29000, 12),
-    "SCGK-09-CYB-1P5R": buildDemoAccount("09", "陈映波", "成员", "member-09", 540000, 18000, 8),
-    "SCGK-10-BY-8H2L": buildDemoAccount("10", "备用未分配", "备用", "member-10", 0, 0, 0)
-  };
+  const DEMO_ACCESS_CODES = {};
 
   const state = {
     sessionToken: window.localStorage.getItem("scgk114-session-token") || "",
