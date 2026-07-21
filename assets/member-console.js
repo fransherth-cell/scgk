@@ -5,7 +5,7 @@
     ? "http://127.0.0.1:8787"
     : "https://api.scgk114.com";
   const ACCESS_BASE_URL = "https://api.scgk114.com/v1";
-  const CLOUD_DRIVE_URL = "#";
+  const CLOUD_DRIVE_URL = "https://pan.baidu.com/s/1Z5hL2lCHzCSBf2FDErANsg?pwd=hhir";
   const DEMO_ACCESS_CODES = {
     "SCGK-DEMO-01": {
       sessionToken: "demo-session-scgk-demo-01",
@@ -513,10 +513,10 @@
           <div class="notice">API Key 由管理员分发，请妥善保管。网页不会显示、生成或导出 API Key。</div>
           <div class="download-strip">
             <div>
-              <strong>Codex 安装包与基础 Skill</strong>
-              <span>管理员云盘会放置最新版安装包、基础 Skill 压缩包和现场配置说明。</span>
+              <strong>SCGK114 Codex 安装配置包</strong>
+              <span>包含 Windows 官方安装入口、自动配置脚本、离线 CLI 和图片生成 Skill。</span>
             </div>
-            <a class="secondary link-button ${CLOUD_DRIVE_URL === "#" ? "disabled" : ""}" href="${CLOUD_DRIVE_URL}" target="_blank" rel="noreferrer">打开云盘链接</a>
+            <a class="secondary link-button ${CLOUD_DRIVE_URL === "#" ? "disabled" : ""}" href="${CLOUD_DRIVE_URL}" target="_blank" rel="noreferrer">下载安装配置包</a>
           </div>
         </section>
 
