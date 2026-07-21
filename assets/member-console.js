@@ -7,37 +7,16 @@
   const ACCESS_BASE_URL = "https://api.scgk114.com/v1";
   const CLOUD_DRIVE_URL = "https://pan.baidu.com/s/1Z5hL2lCHzCSBf2FDErANsg?pwd=hhir";
   const DEMO_ACCESS_CODES = {
-    "SCGK-DEMO-01": {
-      sessionToken: "demo-session-scgk-demo-01",
-      profile: {
-        name: "测试成员 01",
-        role: "前端流程测试",
-        keyName: "demo-member-01"
-      },
-      usage: {
-        generated_at: "前端演示数据",
-        groupMonthlyTokenQuota: 100000000,
-        totals: {
-          month_tokens: 24000000,
-          today_tokens: 860000,
-          month_requests: 318
-        },
-        memberUsage: {
-          month_tokens: 3200000,
-          today_tokens: 128000,
-          month_requests: 42
-        },
-        daily: [
-          { label: "D-6", tokens: 1800000 },
-          { label: "D-5", tokens: 2400000 },
-          { label: "D-4", tokens: 1900000 },
-          { label: "D-3", tokens: 3100000 },
-          { label: "D-2", tokens: 2800000 },
-          { label: "D-1", tokens: 3600000 },
-          { label: "今天", tokens: 860000 }
-        ]
-      }
-    }
+    "SCGK-01-LKY-7Q2A": buildDemoAccount("01", "李锟杨", "调试员", "member-01", 3200000, 128000, 42),
+    "SCGK-02-ZDN-8M4K": buildDemoAccount("02", "张岱南", "老师-组长", "member-02", 2800000, 96000, 35),
+    "SCGK-03-HHJ-5R9C": buildDemoAccount("03", "何恒基", "成员", "member-03", 2100000, 74000, 28),
+    "SCGK-04-MSY-2X7P": buildDemoAccount("04", "马书杨", "成员", "member-04", 1750000, 68000, 24),
+    "SCGK-05-YJR-9D3N": buildDemoAccount("05", "余佳芮", "成员", "member-05", 1420000, 51000, 21),
+    "SCGK-06-ZZX-4K8V": buildDemoAccount("06", "张梓炫", "成员", "member-06", 1180000, 47000, 18),
+    "SCGK-07-PWB-6T1J": buildDemoAccount("07", "潘魏博", "成员", "member-07", 920000, 36000, 15),
+    "SCGK-08-ZYY-3N6W": buildDemoAccount("08", "张胤禹", "成员", "member-08", 760000, 29000, 12),
+    "SCGK-09-CYB-1P5R": buildDemoAccount("09", "陈映波", "成员", "member-09", 540000, 18000, 8),
+    "SCGK-10-BY-8H2L": buildDemoAccount("10", "备用未分配", "备用", "member-10", 0, 0, 0)
   };
 
   const state = {
@@ -63,6 +42,45 @@
   function safePercent(used, quota) {
     if (!quota) return 0;
     return (Number(used || 0) / Number(quota)) * 100;
+  }
+
+  function buildDemoAccount(no, name, role, keyName, memberMonthTokens, memberTodayTokens, memberMonthRequests) {
+    return {
+      sessionToken: `demo-session-scgk-member-${no}`,
+      profile: {
+        name,
+        role,
+        keyName
+      },
+      usage: {
+        generated_at: "前端演示数据",
+        groupMonthlyTokenQuota: 100000000,
+        totals: {
+          month_tokens: 24000000,
+          today_tokens: 860000,
+          month_requests: 318
+        },
+        memberUsage: {
+          month_tokens: memberMonthTokens,
+          today_tokens: memberTodayTokens,
+          month_requests: memberMonthRequests
+        },
+        daily: buildDailyUsage(memberTodayTokens)
+      }
+    };
+  }
+
+  function buildDailyUsage(todayTokens) {
+    const today = Number(todayTokens || 0);
+    return [
+      { label: "D-6", tokens: Math.round(today * 1.6) },
+      { label: "D-5", tokens: Math.round(today * 1.9) },
+      { label: "D-4", tokens: Math.round(today * 1.4) },
+      { label: "D-3", tokens: Math.round(today * 2.2) },
+      { label: "D-2", tokens: Math.round(today * 1.8) },
+      { label: "D-1", tokens: Math.round(today * 2.4) },
+      { label: "今天", tokens: today }
+    ];
   }
 
   function authHeaders() {
@@ -228,7 +246,7 @@
             </div>
             <p class="error-text">${escapeHtml(errorText || "")}</p>
             <div class="demo-codes">
-              <p class="muted">前端演示码：<code>SCGK-DEMO-01</code></p>
+              <p class="muted">登录码由管理员按成员单独分发。</p>
             </div>
           </form>
         </section>
