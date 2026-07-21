@@ -197,7 +197,7 @@
           <div class="login-copy">
             <p class="eyebrow">成员登录码</p>
             <h1>输入专属登录码，查看自己的接入与用量</h1>
-            <p>每位组员拥有独立登录码和独立接入信息。进入后默认显示个人用量、组内总额度占比，以及导出专用 Base URL 与 API Key 的入口。</p>
+            <p>每位组员拥有独立登录码和接入信息。进入后可查看个人用量、组内总额度占比，以及统一的 Base URL 和接入说明。</p>
           </div>
 
           <div class="login-points">
@@ -211,7 +211,7 @@
             </article>
             <article class="point-card">
               <strong>专属接入</strong>
-              <span>接入页可导出该成员专用配置，减少手动填写错误。</span>
+              <span>API Key 由管理员单独分发，请妥善保管。</span>
             </article>
           </div>
         </section>
@@ -314,22 +314,6 @@
         await loadUsage();
         state.notice = "用量已刷新。";
         renderConsole();
-      });
-    }
-
-    const exportButton = document.getElementById("export-config");
-    if (exportButton) exportButton.addEventListener("click", showExportConfirm);
-
-    const cancelExportButton = document.getElementById("cancel-export");
-    if (cancelExportButton) cancelExportButton.addEventListener("click", closeExportConfirm);
-
-    const confirmExportButton = document.getElementById("confirm-export");
-    if (confirmExportButton) confirmExportButton.addEventListener("click", exportConfig);
-
-    const exportOverlay = document.getElementById("export-confirm-overlay");
-    if (exportOverlay) {
-      exportOverlay.addEventListener("click", (event) => {
-        if (event.target === exportOverlay) closeExportConfirm();
       });
     }
 
@@ -523,11 +507,10 @@
           <div class="section-heading">
             <div>
               <p class="eyebrow">专属接入信息</p>
-              <h2>导出 Base URL 与 API Key</h2>
+              <h2>管理员统一分发 API Key</h2>
             </div>
-            <button class="primary" type="button" id="export-config">点击导出专用 URL 及 API Key</button>
           </div>
-          <div class="notice">API Key 不保存在前端页面。点击导出时，后端会校验当前登录状态并记录一次导出日志。</div>
+          <div class="notice">API Key 由管理员分发，请妥善保管。网页不会显示、生成或导出 API Key。</div>
           <div class="download-strip">
             <div>
               <strong>Codex 安装包与基础 Skill</strong>
@@ -548,7 +531,7 @@
             </div>
             <div class="access-card">
               ${infoBox("Base URL", ACCESS_BASE_URL)}
-              ${infoBox("API Key", "点击导出后查看自己的专属 Key")}
+              ${infoBox("API Key", "由管理员单独分发，请妥善保管")}
               ${infoBox("推荐文本模型", "gpt-5.4-mini / gpt-5.4 / gpt-5.5")}
               ${infoBox("复杂任务模型", "gpt-5.6-terra")}
             </div>
@@ -569,19 +552,6 @@
             </div>
           </section>
         </div>
-
-        <div class="modal-overlay hidden" id="export-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="export-confirm-title">
-          <section class="confirm-modal">
-            <p class="eyebrow">导出确认</p>
-            <h2 id="export-confirm-title">仅供组内使用，切勿外传</h2>
-            <p>导出的文件会包含你的专属 API Key。请只保存在自己的电脑上，不要发到群聊、公开仓库或截图里。</p>
-            <p>点击确认后，后端会记录一次导出日志，便于管理员排查异常使用。</p>
-            <div class="modal-actions">
-              <button class="ghost" type="button" id="cancel-export">取消</button>
-              <button class="primary" type="button" id="confirm-export">确认导出</button>
-            </div>
-          </section>
-        </div>
       </div>
     `;
   }
@@ -592,7 +562,7 @@
         <section class="guide-grid">
           <article class="guide-card">
             <h3>第一步：填写接入信息</h3>
-            <p>在 Codex 或兼容客户端中填写 Base URL 和自己的 API Key，先测试一句简单问答。</p>
+            <p>在 Codex 或兼容客户端中填写统一 Base URL 和管理员分发的 API Key，先测试一句简单问答。</p>
           </article>
           <article class="guide-card">
             <h3>第二步：选择模型</h3>
@@ -720,57 +690,6 @@
         <code>${escapeHtml(value)}</code>
       </div>
     `;
-  }
-
-  function showExportConfirm() {
-    const overlay = document.getElementById("export-confirm-overlay");
-    if (overlay) overlay.classList.remove("hidden");
-  }
-
-  function closeExportConfirm() {
-    const overlay = document.getElementById("export-confirm-overlay");
-    if (overlay) overlay.classList.add("hidden");
-  }
-
-  async function exportConfig() {
-    try {
-      closeExportConfirm();
-      const demoAccount = getDemoAccountByToken(state.sessionToken);
-      const data = demoAccount
-        ? {
-            filename: "SCGK114-测试成员01-演示接入信息.txt",
-            content: [
-              "SCGK114 前端演示接入信息",
-              "",
-              "说明：这是前端流程测试文件，不包含真实 API Key，不能用于实际模型调用。",
-              "",
-              `成员：${demoAccount.profile.name}`,
-              `Base URL：${ACCESS_BASE_URL}`,
-              "API Key：DEMO_KEY_NOT_FOR_REAL_USE",
-              "推荐文本模型：gpt-5.4-mini / gpt-5.5",
-              "",
-              "正式使用时，请等待管理员通过 member-api 后端发放专属 Key。"
-            ].join("\n")
-          }
-        : await apiRequest("/member/export-config", {
-            method: "POST",
-            headers: authHeaders()
-          });
-      const blob = new Blob([data.content], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = data.filename || `SCGK114-${state.member.name}-接入信息.txt`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      state.notice = "专属接入信息已导出。";
-      renderConsole();
-    } catch (error) {
-      state.error = error.message;
-      renderConsole();
-    }
   }
 
   async function copyBaseUrl() {
