@@ -12,6 +12,7 @@
     sessionToken: window.localStorage.getItem("scgk114-session-token") || "",
     member: null,
     activeTab: "usage",
+    manualTab: "quick",
     usage: null,
     error: "",
     notice: ""
@@ -326,6 +327,13 @@
 
     const copyButton = document.getElementById("copy-base");
     if (copyButton) copyButton.addEventListener("click", copyBaseUrl);
+
+    document.querySelectorAll("[data-manual-tab]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.manualTab = button.dataset.manualTab;
+        renderConsole();
+      });
+    });
   }
 
   function renderTopbar() {
@@ -595,33 +603,31 @@
   }
 
   function renderManual() {
+    const tabs = [
+      ["quick", "快速开始"],
+      ["codex", "Codex 接入"],
+      ["cpp", "C++ 调用"],
+      ["workflow", "推荐工作方式"],
+      ["prompts", "常用提示词"],
+      ["faq", "常见问题"]
+    ];
+    const active = state.manualTab || "quick";
+
     return `
       <div class="view-stack">
         <section class="panel">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">组内经验</p>
-              <h2>管理员使用建议</h2>
+              <p class="eyebrow">成员手册</p>
+              <h2>从接入到高效使用</h2>
             </div>
           </div>
-          <div class="manual-grid">
-            <article class="manual-card">
-              <h3>先说清楚任务目标</h3>
-              <p>提问时先说明背景、目标、已有材料和希望输出的格式。越具体，越容易一次得到可用结果。</p>
-            </article>
-            <article class="manual-card">
-              <h3>复杂任务分步进行</h3>
-              <p>不要一次要求模型完成所有工作。先让它理解材料，再让它列方案，最后再生成正文或代码。</p>
-            </article>
-            <article class="manual-card">
-              <h3>重要内容自己复核</h3>
-              <p>论文、实验结论、引用、数据解释和最终代码都需要人工复核，模型输出只作为辅助草稿。</p>
-            </article>
-            <article class="manual-card">
-              <h3>普通任务先用轻量模型</h3>
-              <p>日常问答、整理文字、简单代码优先使用轻量模型；复杂推理和长材料分析再切换高强度模型。</p>
-            </article>
+          <div class="manual-tabs" role="tablist" aria-label="使用文档章节">
+            ${tabs.map(([id, label]) => `
+              <button class="manual-tab${active === id ? " active" : ""}" type="button" data-manual-tab="${id}" role="tab" aria-selected="${active === id ? "true" : "false"}">${label}</button>
+            `).join("")}
           </div>
+          ${renderManualTab(active)}
         </section>
 
         <section class="panel">
@@ -665,6 +671,133 @@
           </div>
         </section>
       </div>
+    `;
+  }
+
+  function renderManualTab(active) {
+    const views = {
+      quick: renderManualQuickStart,
+      codex: renderManualCodex,
+      cpp: renderManualCpp,
+      workflow: renderManualWorkflow,
+      prompts: renderManualPrompts,
+      faq: renderManualFaq
+    };
+    return (views[active] || renderManualQuickStart)();
+  }
+
+  function renderManualQuickStart() {
+    return `
+      <div class="manual-section">
+        <div class="manual-grid three">
+          ${manualCard("1. 登录成员控制台", "打开 scgk114.com，输入管理员分发的前端登录码，查看自己的绑定 Key 和用量。")}
+          ${manualCard("2. 配置客户端", "在 Codex、C++ 程序或兼容客户端中填写 Base URL 和 API Key。")}
+          ${manualCard("3. 先跑一句测试", "先发送一句简单问题，确认模型可用后再开始论文、代码或数据任务。")}
+        </div>
+        <div class="manual-note">Base URL：${ACCESS_BASE_URL}。API Key 不在网页显示，由管理员单独分发，请妥善保管。</div>
+      </div>
+    `;
+  }
+
+  function renderManualCodex() {
+    return `
+      <div class="manual-section">
+        <div class="access-card">
+          ${infoBox("Base URL", ACCESS_BASE_URL)}
+          ${infoBox("API Key", "填写管理员分发的 sk-...")}
+          ${infoBox("日常文本模型", "gpt-5.4-mini / gpt-5.4 / gpt-5.5")}
+          ${infoBox("复杂任务模型", "gpt-5.6-terra")}
+        </div>
+        <div class="manual-grid">
+          ${manualCard("推荐配置顺序", "先确认 Base URL，再填 API Key，最后选择文本模型。图片生成不要设置为 Codex 主模型。")}
+          ${manualCard("图片生成", "使用 scgk-imagegen 工具，接口走 /v1/images/generations；普通对话继续使用文本模型。")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderManualCpp() {
+    return `
+      <div class="manual-section">
+        <div class="code-panel">
+          <div><span>Base URL</span><code>${ACCESS_BASE_URL}</code></div>
+          <div><span>文本接口</span><code>/responses</code></div>
+          <div><span>图片接口</span><code>/images/generations</code></div>
+        </div>
+        <div class="prompt-block">
+          <strong>C++ 调用时给 Codex 的提示</strong>
+          <pre>请帮我在当前 C++ 项目中接入 OpenAI-compatible API。
+Base URL 使用 https://api.scgk114.com/v1。
+API Key 从环境变量 SCGK_API_KEY 读取。
+文本模型优先使用 gpt-5.5。
+请先写一个最小可运行测试，再说明如何编译和运行。</pre>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderManualWorkflow() {
+    return `
+      <div class="manual-section">
+        <div class="manual-grid">
+          ${manualCard("先说目标", "先告诉 AI 你要解决什么问题、已有材料是什么、希望输出什么格式。")}
+          ${manualCard("分步推进", "复杂任务先让 AI 理解材料和列计划，再让它执行，不要一口气塞满所有要求。")}
+          ${manualCard("保留检查点", "长任务要求 AI 阶段性总结：改了什么、文件在哪、还有什么风险。")}
+          ${manualCard("主动纠偏", "发现方向不对时直接指出错在哪里，让 AI 按新的约束继续。")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderManualPrompts() {
+    return `
+      <div class="manual-section">
+        ${promptExample("论文阅读", "请帮我阅读这篇论文，输出：研究问题、方法路线、关键实验、创新点、可能复现难点。")}
+        ${promptExample("代码检查", "请检查这段代码：是否有明显 bug、性能问题、可简化处，并给出修改后的完整版本。")}
+        ${promptExample("实验数据", "请把这组实验数据整理成：数据趋势、异常点、可能原因、下一步实验建议。")}
+        ${promptExample("项目交接", "请根据当前项目内容生成交接文档，包含当前状态、关键文件、部署方式、测试结果和下一步任务。")}
+      </div>
+    `;
+  }
+
+  function renderManualFaq() {
+    return `
+      <div class="manual-section">
+        <div class="faq-list">
+          ${faqItem("登录码不能用怎么办？", "先确认是否有多余空格；仍失败时联系管理员检查登录码是否已变更。")}
+          ${faqItem("API Key 填在哪里？", "填在 Codex 或兼容客户端的 API Key 字段，不要发到公开聊天或代码仓库。")}
+          ${faqItem("页面用量为什么不是实时跳动？", "用量来自后台日志统计，可能有短暂延迟。需要时点击个人用量页的刷新按钮。")}
+          ${faqItem("出现 401 或 403 怎么办？", "通常是 Key 填错、Key 被停用、模型权限不匹配或图片接口使用方式不对。截图并保留模型名。")}
+          ${faqItem("Key 泄露怎么办？", "立即联系管理员停用并更换。旧 Key 停用后无法继续访问。")}
+        </div>
+      </div>
+    `;
+  }
+
+  function manualCard(title, body) {
+    return `
+      <article class="manual-card">
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(body)}</p>
+      </article>
+    `;
+  }
+
+  function promptExample(title, body) {
+    return `
+      <article class="prompt-block">
+        <strong>${escapeHtml(title)}</strong>
+        <pre>${escapeHtml(body)}</pre>
+      </article>
+    `;
+  }
+
+  function faqItem(question, answer) {
+    return `
+      <article class="faq-item">
+        <h3>${escapeHtml(question)}</h3>
+        <p>${escapeHtml(answer)}</p>
+      </article>
     `;
   }
 
