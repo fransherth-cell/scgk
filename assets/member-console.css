@@ -753,10 +753,33 @@ pre {
   background: #ffffff;
 }
 
-.prompt-block strong {
-  display: block;
+.prompt-head {
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.prompt-head strong {
   color: #123f33;
+}
+
+.copy-prompt {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #b8d5cc;
+  border-radius: 8px;
+  color: #174b3d;
+  background: #eef7f5;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.copy-prompt:hover {
+  border-color: var(--accent);
+  background: #e1f1ed;
 }
 
 .prompt-block pre {

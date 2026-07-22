@@ -328,6 +328,12 @@
     const copyButton = document.getElementById("copy-base");
     if (copyButton) copyButton.addEventListener("click", copyBaseUrl);
 
+    document.querySelectorAll("[data-copy-prompt]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        await copyPromptText(button.dataset.copyPrompt || "");
+      });
+    });
+
     document.querySelectorAll("[data-manual-tab]").forEach((button) => {
       button.addEventListener("click", () => {
         state.manualTab = button.dataset.manualTab;
@@ -785,7 +791,10 @@ API Key 从环境变量 SCGK_API_KEY 读取。
   function promptExample(title, body) {
     return `
       <article class="prompt-block">
-        <strong>${escapeHtml(title)}</strong>
+        <div class="prompt-head">
+          <strong>${escapeHtml(title)}</strong>
+          <button class="copy-prompt" type="button" data-copy-prompt="${escapeHtml(body)}">复制</button>
+        </div>
         <pre>${escapeHtml(body)}</pre>
       </article>
     `;
@@ -835,6 +844,16 @@ API Key 从环境变量 SCGK_API_KEY 读取。
     try {
       await navigator.clipboard.writeText(ACCESS_BASE_URL);
       state.notice = "Base URL 已复制。";
+      renderConsole();
+    } catch (_) {
+      window.alert("复制失败，请手动复制。");
+    }
+  }
+
+  async function copyPromptText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      state.notice = "提示词已复制。";
       renderConsole();
     } catch (_) {
       window.alert("复制失败，请手动复制。");
