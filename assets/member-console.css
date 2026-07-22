@@ -750,7 +750,7 @@ pre {
   padding: 16px;
   border: 1px solid #cfe4df;
   border-radius: 8px;
-  background: #f7fbfa;
+  background: #ffffff;
 }
 
 .prompt-block strong {
@@ -761,9 +761,13 @@ pre {
 
 .prompt-block pre {
   margin: 0;
+  padding: 13px 14px;
+  border: 1px solid #d9e6e1;
+  border-radius: 8px;
+  background: #f8fafc;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  color: #263844;
+  color: #1f2937;
   font: 14px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
