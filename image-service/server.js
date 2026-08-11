@@ -12,6 +12,7 @@ const UPSTREAM_BASE_URL = (process.env.SCGK_IMAGE_UPSTREAM_BASE_URL || "http://s
 const UPSTREAM_KEY = process.env.SCGK_IMAGE_SERVICE_KEY || "";
 const IMAGE_MODEL = process.env.SCGK_IMAGE_MODEL || "gpt-image-2";
 const OUTPUT_DIR = process.env.IMAGE_OUTPUT_DIR || "/data/generated";
+const DOWNLOAD_MANIFEST_PATH = path.join(OUTPUT_DIR, "downloads.json");
 const STATIC_DIR = process.env.IMAGE_STATIC_DIR || (fs.existsSync(path.join(__dirname, "public")) ? path.join(__dirname, "public") : path.join(__dirname, "..", "image"));
 const TASK_TTL_MS = Number(process.env.IMAGE_TASK_TTL_MS || 60 * 60 * 1000);
 const REQUEST_TIMEOUT_MS = Number(process.env.IMAGE_REQUEST_TIMEOUT_MS || 180 * 1000);
@@ -44,6 +45,35 @@ let activeCount = 0;
 
 function now() {
   return Date.now();
+}
+
+async function persistDownloads() {
+  const records = {};
+  for (const [token, record] of downloads) {
+    records[token] = {
+      fileName: path.basename(record.filePath),
+      type: record.type,
+      expiresAt: record.expiresAt
+    };
+  }
+  const temporaryPath = `${DOWNLOAD_MANIFEST_PATH}.tmp`;
+  await fsp.writeFile(temporaryPath, JSON.stringify(records), { mode: 0o600 });
+  await fsp.rename(temporaryPath, DOWNLOAD_MANIFEST_PATH);
+}
+
+async function restoreDownloads() {
+  try {
+    const records = JSON.parse(await fsp.readFile(DOWNLOAD_MANIFEST_PATH, "utf8"));
+    for (const [token, record] of Object.entries(records)) {
+      if (!/^[a-zA-Z0-9_-]{20,}$/.test(token)) continue;
+      if (!record || typeof record.fileName !== "string" || typeof record.type !== "string") continue;
+      if (!Number.isFinite(record.expiresAt) || record.expiresAt < now()) continue;
+      const filePath = path.join(OUTPUT_DIR, path.basename(record.fileName));
+      if (fs.existsSync(filePath)) downloads.set(token, { filePath, type: record.type, expiresAt: record.expiresAt });
+    }
+  } catch (error) {
+    if (error?.code !== "ENOENT") console.warn(JSON.stringify({ event: "image_download_manifest_unavailable" }));
+  }
 }
 
 function json(res, status, value) {
@@ -187,6 +217,7 @@ async function persistImage(task, index, item) {
   const filePath = path.join(OUTPUT_DIR, filename);
   await fsp.writeFile(filePath, buffer, { mode: 0o600 });
   downloads.set(token, { filePath, type, expiresAt: now() + TASK_TTL_MS });
+  await persistDownloads();
   return { token };
 }
 
@@ -246,11 +277,14 @@ function scheduleCleanup() {
   for (const [taskId, task] of tasks) {
     if (task.createdAt < cutoff && task.status !== "running" && task.status !== "queued") tasks.delete(taskId);
   }
+  let downloadsChanged = false;
   for (const [token, file] of downloads) {
     if (file.expiresAt >= now()) continue;
     downloads.delete(token);
+    downloadsChanged = true;
     fsp.unlink(file.filePath).catch(() => {});
   }
+  if (downloadsChanged) persistDownloads().catch(() => {});
   for (const [key, entries] of rateWindows) {
     const remaining = entries.filter((stamp) => stamp > now() - IP_WINDOW_MS);
     if (remaining.length) rateWindows.set(key, remaining);
@@ -364,6 +398,7 @@ const server = http.createServer(async (req, res) => {
 
 async function main() {
   await fsp.mkdir(OUTPUT_DIR, { recursive: true, mode: 0o700 });
+  await restoreDownloads();
   if (!UPSTREAM_KEY) console.warn(JSON.stringify({ event: "image_service_key_missing" }));
   server.listen(PORT, "0.0.0.0", () => console.info(JSON.stringify({ event: "image_service_started", port: PORT, model: IMAGE_MODEL })));
   setInterval(scheduleCleanup, 10 * 60 * 1000).unref();
