@@ -293,12 +293,12 @@ async function handleGenerate(req, res) {
   }
   const ip = requestIp(req);
   const visitor = visitorId(req);
-  if (!allowRate(`ip:${ip}`, IP_MAX_REQUESTS) || !allowRate(`visitor:${visitor}`, VISITOR_MAX_REQUESTS)) {
-    return json(res, 429, publicError(429, "too_many_requests", "当前请求较频繁，请稍后再试。", Math.ceil(IP_WINDOW_MS / 1000)).body);
-  }
   const fingerprint = hash(`${visitor}|${prompt}|${size}|${quality}|${n}`);
   for (const task of tasks.values()) {
     if (task.fingerprint === fingerprint && now() - task.createdAt < 30_000) return json(res, 202, safeTask(task));
+  }
+  if (!allowRate(`ip:${ip}`, IP_MAX_REQUESTS) || !allowRate(`visitor:${visitor}`, VISITOR_MAX_REQUESTS)) {
+    return json(res, 429, publicError(429, "too_many_requests", "当前请求较频繁，请稍后再试。", Math.ceil(IP_WINDOW_MS / 1000)).body);
   }
   const activeForVisitor = Array.from(tasks.values()).some((task) => task.visitor === visitor && (task.status === "queued" || task.status === "running"));
   if (activeForVisitor) {
