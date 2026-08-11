@@ -348,7 +348,10 @@ function handleDownload(req, res, token, url) {
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, PUBLIC_ORIGIN);
-  const pathname = url.pathname;
+  // Caddy normally removes /api/image; accept the unstripped form as well.
+  const pathname = url.pathname.startsWith("/api/image/")
+    ? url.pathname.slice("/api/image".length)
+    : url.pathname;
   if (req.method === "GET" && pathname === "/health") return json(res, 200, { ok: true });
   if (req.method === "POST" && pathname === "/generate") return handleGenerate(req, res);
   const taskMatch = pathname.match(/^\/tasks\/([a-f0-9-]{36})$/i);
