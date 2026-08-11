@@ -1,0 +1,37 @@
+services:
+  scgk-image-web:
+    build:
+      context: ..
+      dockerfile: image-service/Dockerfile
+    container_name: scgk-image-web
+    restart: unless-stopped
+    environment:
+      PORT: "8790"
+      PUBLIC_ORIGIN: "https://scgk114.com"
+      SCGK_IMAGE_UPSTREAM_BASE_URL: "http://sub2api:8080/v1"
+      SCGK_IMAGE_SERVICE_KEY: "${SCGK_IMAGE_SERVICE_KEY}"
+      SCGK_IMAGE_MODEL: "gpt-image-2"
+      IMAGE_OUTPUT_DIR: "/data/generated"
+      IMAGE_GLOBAL_CONCURRENCY: "1"
+      IMAGE_QUEUE_MAX: "6"
+      IMAGE_IP_MAX_REQUESTS: "4"
+      IMAGE_VISITOR_MAX_REQUESTS: "3"
+      IMAGE_IP_WINDOW_MS: "900000"
+      IMAGE_REQUEST_TIMEOUT_MS: "180000"
+      IMAGE_TASK_TTL_MS: "3600000"
+      IMAGE_MAX_BODY_BYTES: "65536"
+      IMAGE_MAX_PROMPT_LENGTH: "2000"
+    volumes:
+      - ./data:/data
+    networks:
+      - sub2api-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8790/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+networks:
+  sub2api-network:
+    external: true

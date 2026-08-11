@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f8fa" />
+    <meta name="description" content="SCGK114 图片生成工作台" />
+    <title>SCGK114 图片工作台</title>
+    <link rel="stylesheet" href="/image/styles.css" />
+  </head>
+  <body>
+    <main class="workspace">
+      <header class="topbar">
+        <a class="brand" href="/image" aria-label="SCGK114 图片工作台首页">
+          <span class="brand-mark" aria-hidden="true">S</span>
+          <span>SCGK114 <b>图片工作台</b></span>
+        </a>
+        <span class="service-state"><i></i> 可开始创作</span>
+      </header>
+
+      <section class="studio" aria-label="图片生成工具">
+        <section class="composer-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">IMAGE STUDIO</p>
+              <h1>把想法变成图片</h1>
+            </div>
+            <button class="text-button" id="clear-history" type="button">清空本次记录</button>
+          </div>
+
+          <form id="generate-form" novalidate>
+            <label class="prompt-label" for="prompt">图片描述</label>
+            <div class="prompt-box">
+              <textarea id="prompt" maxlength="2000" rows="8" placeholder="例如：雨后的城市夜景，玻璃橱窗倒映霓虹，电影级构图，细节清晰"></textarea>
+              <div class="prompt-footer"><span id="character-count">0 / 2000</span><button id="surprise" type="button">来点灵感</button></div>
+            </div>
+
+            <div class="controls-grid">
+              <label class="select-field">画面尺寸
+                <select id="size" name="size">
+                  <option value="1024x1024">正方形 · 1024 × 1024</option>
+                  <option value="1024x1536">竖版 · 1024 × 1536</option>
+                  <option value="1536x1024">横版 · 1536 × 1024</option>
+                </select>
+              </label>
+              <label class="select-field">生成质量
+                <select id="quality" name="quality">
+                  <option value="medium">标准</option>
+                  <option value="high">高质量</option>
+                  <option value="low">快速</option>
+                </select>
+              </label>
+              <label class="select-field">生成数量
+                <select id="count" name="count">
+                  <option value="1">1 张</option>
+                  <option value="2">2 张</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="submit-row">
+              <p id="status" class="status" role="status" aria-live="polite">描述越具体，画面越贴近你的想法。</p>
+              <button class="generate-button" id="generate" type="submit"><span class="spark" aria-hidden="true">✦</span><span>开始生成</span></button>
+            </div>
+          </form>
+        </section>
+
+        <section class="results-panel" aria-label="生成结果">
+          <div class="results-heading">
+            <div><p class="eyebrow">THIS SESSION</p><h2>作品</h2></div>
+            <span id="history-count" class="history-count">0 张</span>
+          </div>
+          <div id="results" class="results-grid">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">✦</div>
+              <h3>等待第一张作品</h3>
+              <p>填写描述并开始生成，完成的图片会保留在本次会话中。</p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="preview-dialog">
+      <button class="close-preview" aria-label="关闭预览" type="button">×</button>
+      <img id="preview-image" alt="生成图片预览" />
+      <a id="preview-download" class="download-button" href="#" download>下载图片</a>
+    </dialog>
+    <script src="/image/app.js"></script>
+  </body>
+</html>
