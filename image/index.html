@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f7f8fa" />
+    <script>
+      if (location.hostname === "scgk114.com" || location.hostname === "www.scgk114.com") {
+        location.replace("https://api.scgk114.com/image" + location.search + location.hash);
+      }
+    </script>
     <meta name="description" content="SCGK114 图片生成工作台" />
     <title>SCGK114 图片工作台</title>
     <link rel="stylesheet" href="/image/styles.css" />
